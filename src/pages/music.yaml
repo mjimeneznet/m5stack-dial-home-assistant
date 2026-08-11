@@ -26,7 +26,7 @@ font:
     bpp: 4
     glyphs: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,!?-''_()"&áéíóúÁÉÍÓÚñÑüÜçÇ¿¡’'
 
-  - file: ./src/assets/fonts/media_player_icons.ttf
+  - file: src/assets/fonts/media_player_icons.ttf
     id: media_player_icons
     size: 24
     bpp: 4
