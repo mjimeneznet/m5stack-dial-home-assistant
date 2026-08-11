@@ -13,8 +13,8 @@
 - `main/hardware.yaml`: M5Stack Dial hardware drivers and pins.
 - `main/entities.yaml`: Home Assistant entity bindings.
 - `pages/*.yaml`: one LVGL page per feature.
-- `assets/fonts/`: local fonts.
-- `assets/images/`: small embedded image assets.
+- `fonts/`: local fonts.
+- `images/`: small embedded image assets.
 - `components/`: local ESPHome external components.
 
 ## ID conventions

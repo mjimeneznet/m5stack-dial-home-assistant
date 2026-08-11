@@ -133,42 +133,42 @@ globals:
     initial_value: 'false'
 
 image:
-  - file: assets/images/logo.png
+  - file: images/logo.png
     id: logo_img
     type: RGB565
     transparency: alpha_channel
     resize: 72x72
-  - file: assets/images/scene.png
+  - file: images/scene.png
     id: img_scene
     type: RGB565
     transparency: alpha_channel
     resize: 24x24
-  - file: assets/images/bulb.png
+  - file: images/bulb.png
     id: img_light
     type: RGB565
     transparency: alpha_channel
     resize: 24x24
-  - file: assets/images/ac.png
+  - file: images/ac.png
     id: img_ac
     type: RGB565
     transparency: alpha_channel
     resize: 24x24
-  - file: assets/images/music.png
+  - file: images/music.png
     id: img_music
     type: RGB565
     transparency: alpha_channel
     resize: 24x24
-  - file: assets/images/palette.png
+  - file: images/palette.png
     id: img_palette
     type: RGB565
     transparency: alpha_channel
     resize: 24x24
-  - file: assets/images/brightness.png
+  - file: images/brightness.png
     id: img_brightness
     type: RGB565
     transparency: alpha_channel
     resize: 24x24
-  - file: assets/images/light.png
+  - file: images/light.png
     id: img_dengguang
     type: RGB565
     transparency: alpha_channel

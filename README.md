@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/images/logo.png" width="96" alt="Home Assistant Controller for M5Stack Dial logo" />
+<img src="images/logo.png" width="96" alt="Home Assistant Controller for M5Stack Dial logo" />
 
 # Home Assistant Controller for M5Stack Dial
 
@@ -216,7 +216,8 @@ m5stack-dial-home-assistant/
 ├── requirements.txt          # ESPHome version used by this project
 ├── main/                     # Hardware, entities, idle logic and light sensors
 ├── pages/                    # LVGL pages for clock, menu and features
-└── assets/                   # Fonts and embedded images
+├── fonts/                    # Fonts
+├── images/                   # Embedded images
 ├── components/               # Local ESPHome components, including SendSpin
 ├── docs/                     # Configuration and maintenance documentation
 ├── hardware/                 # Hardware-related assets
