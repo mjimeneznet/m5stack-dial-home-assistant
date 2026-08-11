@@ -10,11 +10,11 @@
 
 ## Source layout
 
-- `src/main/hardware.yaml`: M5Stack Dial hardware drivers and pins.
-- `src/main/entities.yaml`: Home Assistant entity bindings.
-- `src/pages/*.yaml`: one LVGL page per feature.
-- `src/assets/fonts/`: local fonts.
-- `src/assets/images/`: small embedded image assets.
+- `main/hardware.yaml`: M5Stack Dial hardware drivers and pins.
+- `main/entities.yaml`: Home Assistant entity bindings.
+- `pages/*.yaml`: one LVGL page per feature.
+- `assets/fonts/`: local fonts.
+- `assets/images/`: small embedded image assets.
 - `components/`: local ESPHome external components.
 
 ## ID conventions

@@ -1,18 +1,18 @@
 packages:
-  defaults:    !include src/main/defaults.yaml
-  hardware:    !include src/main/hardware.yaml
-  entities:      !include src/main/entities.yaml
-  entities_demo: !include src/main/entities_demo.yaml
-  dial_lights_sensors: !include src/main/dial_lights_sensors.yaml
-  load_page:   !include src/pages/load.yaml
-  clock_page:  !include src/pages/main.yaml
-  menu_page:   !include src/pages/menu.yaml
-  light_page:  !include src/pages/light.yaml
-  light_selector_page: !include src/pages/light_selector.yaml
-  air_page:    !include src/pages/air.yaml
-  music_page:  !include src/pages/music.yaml
-  timer_page:  !include src/pages/timer.yaml
-  idle:        !include src/main/idle.yaml
+  defaults:    !include main/defaults.yaml
+  hardware:    !include main/hardware.yaml
+  entities:      !include main/entities.yaml
+  entities_demo: !include main/entities_demo.yaml
+  dial_lights_sensors: !include main/dial_lights_sensors.yaml
+  load_page:   !include pages/load.yaml
+  clock_page:  !include pages/main.yaml
+  menu_page:   !include pages/menu.yaml
+  light_page:  !include pages/light.yaml
+  light_selector_page: !include pages/light_selector.yaml
+  air_page:    !include pages/air.yaml
+  music_page:  !include pages/music.yaml
+  timer_page:  !include pages/timer.yaml
+  idle:        !include main/idle.yaml
 
 external_components:
   - source: github://mjimeneznet/m5stack-dial-home-assistant@main
@@ -133,42 +133,42 @@ globals:
     initial_value: 'false'
 
 image:
-  - file: src/assets/images/logo.png
+  - file: assets/images/logo.png
     id: logo_img
     type: RGB565
     transparency: alpha_channel
     resize: 72x72
-  - file: src/assets/images/scene.png
+  - file: assets/images/scene.png
     id: img_scene
     type: RGB565
     transparency: alpha_channel
     resize: 24x24
-  - file: src/assets/images/bulb.png
+  - file: assets/images/bulb.png
     id: img_light
     type: RGB565
     transparency: alpha_channel
     resize: 24x24
-  - file: src/assets/images/ac.png
+  - file: assets/images/ac.png
     id: img_ac
     type: RGB565
     transparency: alpha_channel
     resize: 24x24
-  - file: src/assets/images/music.png
+  - file: assets/images/music.png
     id: img_music
     type: RGB565
     transparency: alpha_channel
     resize: 24x24
-  - file: src/assets/images/palette.png
+  - file: assets/images/palette.png
     id: img_palette
     type: RGB565
     transparency: alpha_channel
     resize: 24x24
-  - file: src/assets/images/brightness.png
+  - file: assets/images/brightness.png
     id: img_brightness
     type: RGB565
     transparency: alpha_channel
     resize: 24x24
-  - file: src/assets/images/light.png
+  - file: assets/images/light.png
     id: img_dengguang
     type: RGB565
     transparency: alpha_channel

@@ -129,4 +129,4 @@ Use USB for the initial installation if the device is not on Wi-Fi; later update
 
 ## Development-only customisation
 
-Clone the repository when you need to change the firmware itself. `src/pages/` contains the LVGL pages, while `src/main/` contains hardware, default entities, idle logic and light sensors. Install `requirements.txt`, copy `secrets.example.yaml` to a local `secrets.yaml`, and run `esphome config dial.yaml` before compiling. These internal files are not part of the normal remote-package workflow.
+Clone the repository when you need to change the firmware itself. `pages/` contains the LVGL pages, while `main/` contains hardware, default entities, idle logic and light sensors. Install `requirements.txt`, copy `secrets.example.yaml` to a local `secrets.yaml`, and run `esphome config dial.yaml` before compiling. These internal files are not part of the normal remote-package workflow.

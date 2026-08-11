@@ -13,7 +13,7 @@ The SendSpin-derived parts remain under the Apache License 2.0 where indicated b
 
 ## Material Design Icons font
 
-`src/assets/fonts/materialdesignicons-webfont.ttf` is a Material Design Icons webfont asset. Material Design Icons is a third-party icon set and is commonly distributed under the Apache License 2.0.
+`assets/fonts/materialdesignicons-webfont.ttf` is a Material Design Icons webfont asset. Material Design Icons is a third-party icon set and is commonly distributed under the Apache License 2.0.
 
 ## Google Fonts
 

@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="src/assets/images/logo.png" width="96" alt="Home Assistant Controller for M5Stack Dial logo" />
+<img src="assets/images/logo.png" width="96" alt="Home Assistant Controller for M5Stack Dial logo" />
 
 # Home Assistant Controller for M5Stack Dial
 
@@ -132,7 +132,7 @@ wifi_ssid: "your-wifi-network"
 wifi_password: "your-wifi-password"
 ```
 
-The package already contains the device hardware, pages and components. A normal installation only needs this local configuration; do not edit `src/main/entities.yaml`, `src/pages/main.yaml` or other package files. To disable Lights explicitly, use an empty list:
+The package already contains the device hardware, pages and components. A normal installation only needs this local configuration; do not edit `main/entities.yaml`, `pages/main.yaml` or other package files. To disable Lights explicitly, use an empty list:
 
 ```yaml
 dial_lights: []
@@ -214,10 +214,9 @@ m5stack-dial-home-assistant/
 ├── dial.yaml                 # Remote ESPHome package entry point
 ├── secrets.example.yaml      # Example credentials for local development
 ├── requirements.txt          # ESPHome version used by this project
-├── src/
-│   ├── main/                 # Hardware, entities, idle logic and light sensors
-│   ├── pages/                # LVGL pages for clock, menu and features
-│   └── assets/               # Fonts and embedded images
+├── main/                     # Hardware, entities, idle logic and light sensors
+├── pages/                    # LVGL pages for clock, menu and features
+└── assets/                   # Fonts and embedded images
 ├── components/               # Local ESPHome components, including SendSpin
 ├── docs/                     # Configuration and maintenance documentation
 ├── hardware/                 # Hardware-related assets
@@ -237,7 +236,7 @@ esphome config dial.yaml
 esphome compile dial.yaml
 ```
 
-Page customisation lives under `src/pages/`; hardware and idle behaviour are under `src/main/`. Keep local secrets out of Git.
+Page customisation lives under `pages/`; hardware and idle behaviour are under `main/`. Keep local secrets out of Git.
 
 ## Article and video
 

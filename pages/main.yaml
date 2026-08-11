@@ -568,7 +568,7 @@ binary_sensor:
                 - globals.set: {id: button_debounce, value: 'false'}
   # M5Dial V1.1 uses GPIO46 as HOLD for battery power retention.
   # Keep this old back-button mapping commented; enabling it will conflict with
-  # src/main/hardware.yaml:power_hold and battery-only boot will turn off again.
+  # main/hardware.yaml:power_hold and battery-only boot will turn off again.
   # - platform: gpio
   #   name: Hold Button
   #   id: hold_button
