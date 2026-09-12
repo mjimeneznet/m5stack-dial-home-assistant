@@ -308,17 +308,16 @@ sensor:
           id: dial_register_activity
           source: "encoder"
 
-      # Climate selector: one step per detent on its own accumulator.
+      # Climate selector: one step per detent debounced by time, so a click is one step in either direction.
       - if:
           condition:
             lambda: |-
               return !id(idle_event_consumed) && id(in_climate_selector);
           then:
             - lambda: |-
-                const int after = id(climate_selector_encoder_accum) + 1;
-                id(climate_selector_encoder_accum) = after;
-                if (after < 4) return;
-                id(climate_selector_encoder_accum) = 0;
+                const uint32_t now = millis();
+                if (now - id(climate_selector_last_ms) < 50) return;
+                id(climate_selector_last_ms) = now;
                 id(climate_selector_step).execute(1);
       - if:
           condition:
@@ -399,17 +398,16 @@ sensor:
           id: dial_register_activity
           source: "encoder"
 
-      # Climate selector: one step per detent on its own accumulator.
+      # Climate selector: one step per detent debounced by time, so a click is one step in either direction.
       - if:
           condition:
             lambda: |-
               return !id(idle_event_consumed) && id(in_climate_selector);
           then:
             - lambda: |-
-                const int after = id(climate_selector_encoder_accum) - 1;
-                id(climate_selector_encoder_accum) = after;
-                if (after > -4) return;
-                id(climate_selector_encoder_accum) = 0;
+                const uint32_t now = millis();
+                if (now - id(climate_selector_last_ms) < 50) return;
+                id(climate_selector_last_ms) = now;
                 id(climate_selector_step).execute(-1);
       - if:
           condition:
