@@ -168,6 +168,13 @@ The template declares the sensors the page reads — target temperature, current
 
 With **one** climate the menu opens the AC page directly. With **more than one** it opens a selector first: rotate to move between climates, swipe left (or a short press) to open the selected one, swipe right to go back. From the AC page, back returns to the selector.
 
+The selector advances one climate per encoder detent. `climate_selector_pulses` is how many encoder pulses make up one detent on your unit — lower it when a single click moves too little, raise it when a single click jumps two positions:
+
+```yaml
+substitutions:
+  climate_selector_pulses: 2
+```
+
 The page supports target temperature and uses the modes advertised by the entity. HVAC mode, fan mode and swing-related capabilities vary between Home Assistant integrations, so only controls supported by the entity should be expected.
 
 Without any `main/dial_climate.yaml` entry, the legacy single-climate mode still works: set the substitution and the page uses that entity, hidden when it keeps its placeholder value.

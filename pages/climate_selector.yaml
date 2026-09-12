@@ -3,6 +3,11 @@
 # Only reachable when more than one `main/dial_climate.yaml` entry is configured; with a
 # single climate the menu opens the AC page directly, and with none the legacy
 # `climate_entity` page is used as before.
+substitutions:
+  # Encoder pulses per step (the M5Dial encoder emits 4 pulses per detent on some units
+  # and fewer on others). Lower it when a single click moves too little, raise it when a
+  # single click jumps two positions.
+  climate_selector_pulses: 2
 font:
   - file:
       family: DM+Sans

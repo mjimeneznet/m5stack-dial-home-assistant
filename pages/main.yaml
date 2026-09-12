@@ -317,8 +317,10 @@ sensor:
             - lambda: |-
                 const int after = id(climate_selector_encoder_accum) + 1;
                 id(climate_selector_encoder_accum) = after;
-                if (after < 4) return;
+                ESP_LOGI("climate_sel", "pulse=%d", after);
+                if (after < ${climate_selector_pulses}) return;
                 id(climate_selector_encoder_accum) = 0;
+                ESP_LOGI("climate_sel", "step=next");
                 id(climate_selector_step).execute(1);
       - if:
           condition:
@@ -408,8 +410,10 @@ sensor:
             - lambda: |-
                 const int after = id(climate_selector_encoder_accum) - 1;
                 id(climate_selector_encoder_accum) = after;
-                if (after > -4) return;
+                ESP_LOGI("climate_sel", "pulse=%d", after);
+                if (after > -${climate_selector_pulses}) return;
                 id(climate_selector_encoder_accum) = 0;
+                ESP_LOGI("climate_sel", "step=previous");
                 id(climate_selector_step).execute(-1);
       - if:
           condition:
