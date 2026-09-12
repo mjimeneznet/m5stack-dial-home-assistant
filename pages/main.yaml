@@ -148,6 +148,55 @@ script:
                 then:
                   - script.execute: light_selector_confirm
 
+  # Shared confirmation chain, used by the front button and by a left swipe, so the
+  # button is never required: a left swipe confirms/opens exactly like a short press.
+  - id: dial_confirm
+    then:
+      - if:
+          condition:
+            lambda: |-
+              return !id(in_menu) && !id(in_light_selector) && !id(in_light)
+                  && !id(in_air) && !id(in_music) && !id(in_timer)
+                  && !id(in_colorpicker);
+          then:
+            - script.execute: open_menu
+          else:
+            - if:
+                condition:
+                  lambda: 'return id(in_timer);'
+                then:
+                  - script.execute: timer_toggle
+                else:
+                  - if:
+                      condition:
+                        lambda: 'return id(in_air) && id(air_control_mode) != 0;'
+                      then:
+                        - script.execute: air_confirm_edit
+                      else:
+                        - if:
+                            condition:
+                              lambda: 'return id(in_colorpicker);'
+                            then:
+                              - script.execute: toggle_color_picker_mode
+                            else:
+                              - if:
+                                  condition:
+                                    lambda: 'return id(in_light_selector);'
+                                  then:
+                                    - script.execute: light_selector_confirm
+                                  else:
+                                    - if:
+                                        condition:
+                                          lambda: 'return id(in_menu);'
+                                        then:
+                                          - script.execute: dial_enter_selected
+                                        else:
+                                          - if:
+                                              condition:
+                                                lambda: 'return id(in_air) || id(in_light) || id(in_music);'
+                                              then:
+                                                - script.execute: dial_back
+
   - id: dial_gesture_left
     then:
       - script.execute:
@@ -157,26 +206,7 @@ script:
           condition:
             lambda: 'return !id(idle_event_consumed);'
           then:
-            - if:
-                condition:
-                  lambda: |-
-                    return !id(in_menu) && !id(in_light_selector) && !id(in_light)
-                        && !id(in_air) && !id(in_music) && !id(in_timer)
-                        && !id(in_colorpicker);
-                then:
-                  - script.execute: open_menu
-                else:
-                  - if:
-                      condition:
-                        lambda: 'return id(in_menu);'
-                      then:
-                        - script.execute: dial_enter_selected
-                      else:
-                        - if:
-                            condition:
-                              lambda: 'return id(in_light_selector);'
-                            then:
-                              - script.execute: light_selector_confirm
+            - script.execute: dial_confirm
 
   - id: dial_gesture_right
     then:
@@ -198,50 +228,7 @@ script:
           condition:
             lambda: 'return !id(idle_event_consumed);'
           then:
-            - if:
-                condition:
-                  lambda: |-
-                    return !id(in_menu) && !id(in_light_selector) && !id(in_light)
-                        && !id(in_air) && !id(in_music) && !id(in_timer)
-                        && !id(in_colorpicker);
-                then:
-                  - script.execute: open_menu
-                else:
-                  - if:
-                      condition:
-                        lambda: 'return id(in_timer);'
-                      then:
-                        - script.execute: timer_toggle
-                      else:
-                        - if:
-                            condition:
-                              lambda: 'return id(in_air) && id(air_control_mode) != 0;'
-                            then:
-                              - script.execute: air_confirm_edit
-                            else:
-                              - if:
-                                  condition:
-                                    lambda: 'return id(in_colorpicker);'
-                                  then:
-                                    - script.execute: toggle_color_picker_mode
-                                  else:
-                                    - if:
-                                        condition:
-                                          lambda: 'return id(in_light_selector);'
-                                        then:
-                                          - script.execute: light_selector_confirm
-                                        else:
-                                          - if:
-                                              condition:
-                                                lambda: 'return id(in_menu);'
-                                              then:
-                                                - script.execute: dial_enter_selected
-                                              else:
-                                                - if:
-                                                    condition:
-                                                      lambda: 'return id(in_air) || id(in_light) || id(in_music);'
-                                                    then:
-                                                      - script.execute: dial_back
+            - script.execute: dial_confirm
 
   - id: dial_back
     then:

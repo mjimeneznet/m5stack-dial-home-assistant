@@ -136,16 +136,18 @@ For all fields, defaults and advanced cases, see [the configuration reference](d
 
 ## Navigation
 
-The Dial supports the rotary encoder, the front button and horizontal touch gestures. In general, a short press opens or accepts, a rapid double press performs Back, and a long press has no action. Touch widgets retain their page-specific actions.
+The Dial supports the rotary encoder, the front button, horizontal touch gestures and on-screen widgets. A left swipe does exactly what a short press does, so the front button is optional: rotary, swipe and touch cover every action. Touch widgets retain their page-specific actions.
 
-| Context | Rotate | Short press | Double press / Touch |
+| Context | Rotate | Short press / swipe left | Swipe right / Touch |
 | --- | --- | --- | --- |
-| Clock (Home) | No action | Opens Menu | Long press: no action. Swipe left or right opens Menu. |
-| Menu | Moves the circular selection | Opens the selected page; Home returns to Clock | Tap a visible menu item to open it. Swipe left confirms; swipe right returns to Clock. |
-| Lights | Changes brightness or the active selector value | Opens/accepts the selected light, according to context | Double press or swipe right goes back. Touch controls power, colour picker and colour confirmation. |
-| AC | Changes the selected value | Accepts or confirms the current edit | Double press or swipe right goes back. Touch selects controls and toggles power, fan mode or HVAC mode. |
-| Music | Changes volume | Accepts the current action where applicable | Double press or swipe right goes back. Touch controls playback and transport. |
-| Timer | Adjusts the selected duration unit while the timer is idle | Starts, pauses, resumes or clears the finished state | Double press or swipe right goes back. Touch selects hours/minutes/seconds and accesses reset/cancel. |
+| Clock (Home) | No action | Opens Menu | Swipe right opens Menu too. A long press has no action. |
+| Menu | Moves the circular selection | Opens the selected page; Home returns to Clock | Tap a visible menu item to open it. Swipe right returns to Clock. |
+| Lights | Changes brightness or the active selector value | Opens/accepts the selected light, according to context | Touch controls power, colour picker and colour confirmation. |
+| AC | Changes the selected value | Accepts or confirms the current edit | Touch selects controls and toggles power, fan mode or HVAC mode. |
+| Music | Changes volume | Accepts the current action where applicable | Touch controls playback and transport. |
+| Timer | Adjusts the selected duration unit while the timer is idle | Starts, pauses, resumes or clears the finished state | Touch selects hours/minutes/seconds and accesses reset/cancel. |
+
+A rapid double press of the front button is the same as a right swipe (Back).
 
 The first encoder turn, button press or touch gesture after the screen has dimmed or turned off only wakes the display; repeat the action to control the interface.
 
