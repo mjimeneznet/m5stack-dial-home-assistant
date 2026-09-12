@@ -15,7 +15,7 @@ packages:
 
 external_components:
   - source: github://mjimeneznet/m5stack-dial-home-assistant@main
-    components: [dial_lights, dial_carousel]
+    components: [dial_lights, dial_carousel, dial_climates]
     refresh: 0s
 
 # This package ships no lights. Declare each light as one `main/dial_light.yaml` entry in

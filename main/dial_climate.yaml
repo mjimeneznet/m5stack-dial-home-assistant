@@ -1,0 +1,78 @@
+# Template: one Home Assistant climate entity for the AC page.
+#
+# List this file once per air conditioner or thermostat in your own device configuration
+# and pass the climate through `vars:`:
+#
+#   packages:
+#     smart_home_button:
+#       url: https://github.com/mjimeneznet/m5stack-dial-home-assistant
+#       ref: main
+#       refresh: 0s
+#       files:
+#         - dial.yaml
+#         - path: main/dial_climate.yaml
+#           vars: {prefix: buhardilla, climate: climate.ac_buhardilla, name: Buhardilla}
+#         - path: main/dial_climate.yaml
+#           vars: {prefix: salon, climate: climate.ac_salon, name: Salón}
+#
+# Variables (all required):
+#   prefix:  short, unique id prefix for this climate's sensors, for example `buhardilla`.
+#   climate: the Home Assistant climate entity_id, for example `climate.ac_buhardilla`.
+#   name:    label shown on the Dial, for example `Buhardilla`.
+#
+# Every sensor below is optional from the component's point of view: a climate that does
+# not expose one of these attributes simply reports nothing for it.
+
+dial_climates:
+  - entity_id: ${climate}
+    name: ${name}
+    target_temp_sensor: dial_climate_${prefix}_target_temp
+    current_temp_sensor: dial_climate_${prefix}_current_temp
+    humidity_sensor: dial_climate_${prefix}_humidity
+    hvac_mode_sensor: dial_climate_${prefix}_hvac_mode
+    hvac_modes_sensor: dial_climate_${prefix}_hvac_modes
+    fan_mode_sensor: dial_climate_${prefix}_fan_mode
+    fan_modes_sensor: dial_climate_${prefix}_fan_modes
+
+sensor:
+  - platform: homeassistant
+    id: dial_climate_${prefix}_target_temp
+    entity_id: ${climate}
+    attribute: temperature
+    internal: true
+
+  - platform: homeassistant
+    id: dial_climate_${prefix}_current_temp
+    entity_id: ${climate}
+    attribute: current_temperature
+    internal: true
+
+  - platform: homeassistant
+    id: dial_climate_${prefix}_humidity
+    entity_id: ${climate}
+    attribute: current_humidity
+    internal: true
+
+text_sensor:
+  - platform: homeassistant
+    id: dial_climate_${prefix}_hvac_mode
+    entity_id: ${climate}
+    internal: true
+
+  - platform: homeassistant
+    id: dial_climate_${prefix}_hvac_modes
+    entity_id: ${climate}
+    attribute: hvac_modes
+    internal: true
+
+  - platform: homeassistant
+    id: dial_climate_${prefix}_fan_mode
+    entity_id: ${climate}
+    attribute: fan_mode
+    internal: true
+
+  - platform: homeassistant
+    id: dial_climate_${prefix}_fan_modes
+    entity_id: ${climate}
+    attribute: fan_modes
+    internal: true

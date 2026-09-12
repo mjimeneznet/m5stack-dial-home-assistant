@@ -1,2 +1,6 @@
 # Default empty lights list when dial_lights is omitted from the user config.
 dial_lights: []
+
+# Empty climate list by default: the AC page is hidden until the consumer adds
+# `main/dial_climate.yaml` entries to its packages block.
+dial_climates: []
