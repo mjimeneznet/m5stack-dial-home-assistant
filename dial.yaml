@@ -71,6 +71,11 @@ esp32:
 
 logger:
   level: INFO
+  # A light that is off, or an attribute a light does not expose, reports None and the
+  # Home Assistant sensor platform logs a warning for each of those reads (it publishes
+  # NAN, which the pages already ignore). Keep that tag quiet so real warnings stand out.
+  logs:
+    homeassistant.sensor: ERROR
 
 api:
   encryption:
