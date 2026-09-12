@@ -1,0 +1,89 @@
+# Template: one Home Assistant light for the Lights page.
+#
+# The remote package ships no lights. List this file once per light in your own device
+# configuration and pass the light through `vars:`:
+#
+#   packages:
+#     smart_home_button:
+#       url: https://github.com/mjimeneznet/m5stack-dial-home-assistant
+#       ref: main
+#       refresh: 0s
+#       files:
+#         - dial.yaml
+#         - path: main/dial_light.yaml
+#           vars: {prefix: sofa, light: light.sofa, name: Sofá}
+#         - path: main/dial_light.yaml
+#           vars: {prefix: mesa, light: light.mesa, name: Mesa}
+#
+# Variables (all required):
+#   prefix: short, unique id prefix for this light's sensors, for example `sofa`.
+#   light:  the Home Assistant light entity_id, for example `light.sofa`.
+#   name:   label shown on the Dial, for example `Sofá`.
+#
+# Home Assistant exposes each value below as an attribute on the light entity. An
+# attribute the light does not support simply stays empty.
+
+dial_lights:
+  - entity_id: ${light}
+    name: ${name}
+    state_sensor: dial_light_${prefix}_state
+    modes_sensor: dial_light_${prefix}_modes
+    brightness_sensor: dial_light_${prefix}_brightness
+    color_sensor: dial_light_${prefix}_rgb
+    color_mode_sensor: dial_light_${prefix}_color_mode
+    color_temp_kelvin_sensor: dial_light_${prefix}_color_temp_kelvin
+    min_color_temp_kelvin_sensor: dial_light_${prefix}_min_color_temp_kelvin
+    max_color_temp_kelvin_sensor: dial_light_${prefix}_max_color_temp_kelvin
+
+text_sensor:
+  - platform: homeassistant
+    id: dial_light_${prefix}_state
+    entity_id: ${light}
+    internal: true
+    on_value:
+      - script.execute: menu_on_ha_update
+
+  - platform: homeassistant
+    id: dial_light_${prefix}_modes
+    entity_id: ${light}
+    attribute: supported_color_modes
+    internal: true
+
+  - platform: homeassistant
+    id: dial_light_${prefix}_rgb
+    entity_id: ${light}
+    attribute: rgb_color
+    internal: true
+
+  - platform: homeassistant
+    id: dial_light_${prefix}_color_mode
+    entity_id: ${light}
+    attribute: color_mode
+    internal: true
+
+sensor:
+  - platform: homeassistant
+    id: dial_light_${prefix}_brightness
+    entity_id: ${light}
+    attribute: brightness
+    internal: true
+    on_value:
+      - script.execute: menu_on_ha_update
+
+  - platform: homeassistant
+    id: dial_light_${prefix}_color_temp_kelvin
+    entity_id: ${light}
+    attribute: color_temp_kelvin
+    internal: true
+
+  - platform: homeassistant
+    id: dial_light_${prefix}_min_color_temp_kelvin
+    entity_id: ${light}
+    attribute: min_color_temp_kelvin
+    internal: true
+
+  - platform: homeassistant
+    id: dial_light_${prefix}_max_color_temp_kelvin
+    entity_id: ${light}
+    attribute: max_color_temp_kelvin
+    internal: true

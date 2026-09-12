@@ -3,7 +3,6 @@ packages:
   hardware:    !include main/hardware.yaml
   entities:      !include main/entities.yaml
   entities_demo: !include main/entities_demo.yaml
-  dial_lights_sensors: !include main/dial_lights_sensors.yaml
   load_page:   !include pages/load.yaml
   clock_page:  !include pages/main.yaml
   menu_page:   !include pages/menu.yaml
@@ -19,37 +18,10 @@ external_components:
     components: [dial_lights, dial_carousel]
     refresh: 0s
 
-dial_lights:
-  - entity_id: light.sofa
-    name: Sofá
-    state_sensor: dial_light_sofa_state
-    modes_sensor: dial_light_sofa_modes
-    brightness_sensor: dial_light_sofa_brightness
-    color_sensor: dial_light_sofa_rgb
-    color_mode_sensor: dial_light_sofa_color_mode
-    color_temp_kelvin_sensor: dial_light_sofa_color_temp_kelvin
-    min_color_temp_kelvin_sensor: dial_light_sofa_min_color_temp_kelvin
-    max_color_temp_kelvin_sensor: dial_light_sofa_max_color_temp_kelvin
-  - entity_id: light.mesa
-    name: Mesa
-    state_sensor: dial_light_mesa_state
-    modes_sensor: dial_light_mesa_modes
-    brightness_sensor: dial_light_mesa_brightness
-    color_sensor: dial_light_mesa_rgb
-    color_mode_sensor: dial_light_mesa_color_mode
-    color_temp_kelvin_sensor: dial_light_mesa_color_temp_kelvin
-    min_color_temp_kelvin_sensor: dial_light_mesa_min_color_temp_kelvin
-    max_color_temp_kelvin_sensor: dial_light_mesa_max_color_temp_kelvin
-  - entity_id: light.luces_jardin
-    name: Jardín
-    state_sensor: dial_light_jardin_state
-    modes_sensor: dial_light_jardin_modes
-    brightness_sensor: dial_light_jardin_brightness
-    color_sensor: dial_light_jardin_rgb
-    color_mode_sensor: dial_light_jardin_color_mode
-    color_temp_kelvin_sensor: dial_light_jardin_color_temp_kelvin
-    min_color_temp_kelvin_sensor: dial_light_jardin_min_color_temp_kelvin
-    max_color_temp_kelvin_sensor: dial_light_jardin_max_color_temp_kelvin
+# This package ships no lights. Declare each light as one `main/dial_light.yaml` entry in
+# your own packages block; that template declares the `dial_lights` entry plus the Home
+# Assistant sensors the Lights page reads for live state, so the package stays generic.
+# See the Lights section of docs/configuration.md.
 
 substitutions:
   timezone: Europe/Madrid

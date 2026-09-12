@@ -105,23 +105,19 @@ substitutions:
   screen_off_timeout: 60s
   screen_dim_brightness: "20%"
 
-dial_lights:
-  - entity_id: light.sofa
-    name: Sofá
-
-  - entity_id: light.mesa
-    name: Mesa
-
-  - entity_id: light.luces_jardin
-    name: Jardín
-
 packages:
   smart_home_button:
     url: https://github.com/mjimeneznet/m5stack-dial-home-assistant
     ref: main
+    refresh: 0s
     files:
       - dial.yaml
-    refresh: 0s
+      - path: main/dial_light.yaml
+        vars: {prefix: sofa, light: light.sofa, name: Sofá}
+      - path: main/dial_light.yaml
+        vars: {prefix: mesa, light: light.mesa, name: Mesa}
+      - path: main/dial_light.yaml
+        vars: {prefix: jardin, light: light.luces_jardin, name: Jardín}
 ```
 
 Create the referenced secrets in ESPHome, for example:
@@ -132,11 +128,7 @@ wifi_ssid: "your-wifi-network"
 wifi_password: "your-wifi-password"
 ```
 
-The package already contains the device hardware, pages and components. A normal installation only needs this local configuration; do not edit `main/entities.yaml`, `pages/main.yaml` or other package files. To disable Lights explicitly, use an empty list:
-
-```yaml
-dial_lights: []
-```
+The package contains the device hardware, pages and components, but no lights: every light is one `main/dial_light.yaml` entry in your own `packages:` block, so the package stays reusable. Add or remove an entry to add or remove a light; with no entries at all, Lights disappears from the menu. Do not edit `main/entities.yaml`, `pages/main.yaml` or other package files.
 
 `ref: main` follows the version currently published on `main`. `refresh: 0s` makes ESPHome check the remote package on every configuration or build, which is useful while tracking that branch but depends on GitHub being reachable and can add download time. It is optional; pin a tag or commit in `ref` when reproducible builds matter.
 
@@ -215,7 +207,7 @@ m5stack-dial-home-assistant/
 ├── dial.yaml                 # Remote ESPHome package entry point
 ├── secrets.example.yaml      # Example credentials for local development
 ├── requirements.txt          # ESPHome version used by this project
-├── main/                     # Hardware, entities, idle logic and light sensors
+├── main/                     # Hardware, entities, idle logic and the per-light template
 ├── pages/                    # LVGL pages for clock, menu and features
 ├── fonts/                    # Fonts
 ├── images/                   # Embedded images

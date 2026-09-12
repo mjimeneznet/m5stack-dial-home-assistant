@@ -39,15 +39,106 @@ Unconfigured optional features are hidden from the menu. Timer is hidden while `
 
 ### Lights
 
+Every configured light is one entry of the package file list. Add one `main/dial_light.yaml` entry per light and pass that light through `vars:`:
+
 ```yaml
-dial_lights:
-  - entity_id: light.sofa
-    name: Sofá
-  - entity_id: light.desk
-    name: Escritorio
+packages:
+  smart_home_button:
+    url: https://github.com/mjimeneznet/m5stack-dial-home-assistant
+    ref: main
+    refresh: 0s
+    files:
+      - dial.yaml
+      - path: main/dial_light.yaml
+        vars: {prefix: sofa, light: light.sofa, name: Sofá}
+      - path: main/dial_light.yaml
+        vars: {prefix: mesa, light: light.mesa, name: Mesa}
 ```
 
-Each entry needs an `entity_id` and a display `name`. Omit the key, or set `dial_lights: []`, to disable Lights and hide its menu entry.
+| Variable | Meaning |
+| --- | --- |
+| `prefix` | Short, unique id prefix for this light's sensors (`sofa`, `mesa`, ...). Lowercase, no spaces. |
+| `light` | The Home Assistant light `entity_id`. |
+| `name` | The label shown on the Dial. |
+
+The template declares the Home Assistant sensors the page reads for live state — state, supported colour modes, colour, colour mode, brightness and the colour-temperature range — and hooks state and brightness into the menu subtitle. An attribute the light does not expose simply stays empty, and an unavailable entity does not synchronise. Add an entry to add a light; remove it to drop one; with none left, Lights disappears from the menu.
+
+#### Manual light entries
+
+If you prefer to own the sensors, or you already have them, declare a `dial_lights` entry per light and point its `*_sensor` fields at your own sensor ids:
+
+```yaml
+dial_lights:
+  - entity_id: light.desk
+    name: Escritorio
+    state_sensor: dial_light_desk_state
+    modes_sensor: dial_light_desk_modes
+    brightness_sensor: dial_light_desk_brightness
+    color_sensor: dial_light_desk_rgb
+    color_mode_sensor: dial_light_desk_color_mode
+    color_temp_kelvin_sensor: dial_light_desk_color_temp_kelvin
+    min_color_temp_kelvin_sensor: dial_light_desk_min_color_temp_kelvin
+    max_color_temp_kelvin_sensor: dial_light_desk_max_color_temp_kelvin
+```
+
+Each entry needs an `entity_id` and a display `name`; the `*_sensor` fields are optional. Without them the light can still be switched and dimmed, but the page has no state, colour or brightness to read back. The matching sensors look like this, one group per light:
+
+```yaml
+text_sensor:
+  - platform: homeassistant
+    id: dial_light_desk_state
+    entity_id: light.desk
+    internal: true
+    on_value:
+      - script.execute: menu_on_ha_update
+
+  - platform: homeassistant
+    id: dial_light_desk_modes
+    entity_id: light.desk
+    attribute: supported_color_modes
+    internal: true
+
+  - platform: homeassistant
+    id: dial_light_desk_rgb
+    entity_id: light.desk
+    attribute: rgb_color
+    internal: true
+
+  - platform: homeassistant
+    id: dial_light_desk_color_mode
+    entity_id: light.desk
+    attribute: color_mode
+    internal: true
+
+sensor:
+  - platform: homeassistant
+    id: dial_light_desk_brightness
+    entity_id: light.desk
+    attribute: brightness
+    internal: true
+    on_value:
+      - script.execute: menu_on_ha_update
+
+  - platform: homeassistant
+    id: dial_light_desk_color_temp_kelvin
+    entity_id: light.desk
+    attribute: color_temp_kelvin
+    internal: true
+
+  - platform: homeassistant
+    id: dial_light_desk_min_color_temp_kelvin
+    entity_id: light.desk
+    attribute: min_color_temp_kelvin
+    internal: true
+
+  - platform: homeassistant
+    id: dial_light_desk_max_color_temp_kelvin
+    entity_id: light.desk
+    attribute: max_color_temp_kelvin
+    internal: true
+```
+
+`menu_on_ha_update` is a script provided by the package and keeps the menu subtitle current; every sensor must be `internal: true` so it does not appear in Home Assistant. Use `main/dial_light.yaml` as the reference for the ids and attributes. With no light entries at all, from either path, Lights disappears from the menu.
 
 ### Climate
 
@@ -146,7 +237,8 @@ Use USB for the initial installation if the device is not on Wi-Fi; later update
 
 - **Invalid API encryption key:** generate a valid ESPHome API key and put it in `secrets.yaml`.
 - **Entity not found or unavailable:** check its exact ID and availability in Home Assistant; a configured unavailable feature stays in the menu but cannot synchronise.
-- **Lights missing:** ensure `dial_lights` has at least one entry and is not `[]`.
+- **Lights missing:** add a `main/dial_light.yaml` entry to your `packages:` block, or declare `dial_lights` yourself; Lights is hidden while no light is configured.
+- **Lights listed without state, brightness or colour:** use the `main/dial_light.yaml` template, or point the entry's `*_sensor` fields at your own Home Assistant sensors, as shown in the Lights section.
 - **AQI empty:** use a numeric sensor, not a textual state.
 - **Fonts or glyphs fail during build:** allow the initial build to download Google Fonts, the package images and fonts, and dependencies; use the version pinned in `requirements.txt`.
 - **Compilation error after an update:** validate the complete local YAML and refresh the package before retrying.
