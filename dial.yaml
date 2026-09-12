@@ -9,6 +9,7 @@ packages:
   light_page:  !include pages/light.yaml
   light_selector_page: !include pages/light_selector.yaml
   air_page:    !include pages/air.yaml
+  climate_selector_page: !include pages/climate_selector.yaml
   music_page:  !include pages/music.yaml
   timer_page:  !include pages/timer.yaml
   idle:        !include main/idle.yaml

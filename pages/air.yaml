@@ -162,6 +162,20 @@ globals:
   - id: air_last_valid_fan_mode
     type: std::string
     initial_value: '""'
+  # Last known readings from Home Assistant. Both the legacy single-entity sensors
+  # and the dial_climates path write here, so the page renders from globals only.
+  - id: air_ha_current_temp
+    type: float
+    initial_value: '0.0'
+  - id: air_ha_humidity
+    type: float
+    initial_value: '0.0'
+  - id: air_ha_hvac_mode
+    type: std::string
+    initial_value: '""'
+  - id: air_ha_fan_mode
+    type: std::string
+    initial_value: '""'
 
 sensor:
   - platform: homeassistant
@@ -169,38 +183,36 @@ sensor:
     entity_id: ${climate_entity}
     attribute: temperature
     on_value:
-      - lambda: 'id(air_temp) = (int)(x) * 2;'
-      - script.execute: refresh_air
-      - script.execute: menu_on_ha_update
+      - script.execute:
+          id: air_apply_target_temp
+          value: !lambda 'return x;'
 
   - platform: homeassistant
     id: ha_air_current_temp
     entity_id: ${climate_entity}
     attribute: current_temperature
     on_value:
-      - script.execute: refresh_air
-      - script.execute: menu_on_ha_update
+      - script.execute:
+          id: air_apply_current_temp
+          value: !lambda 'return x;'
 
   - platform: homeassistant
     id: ha_air_humidity
     entity_id: ${climate_entity}
     attribute: current_humidity
     on_value:
-      - script.execute: refresh_air
+      - script.execute:
+          id: air_apply_humidity
+          value: !lambda 'return x;'
 
 text_sensor:
   - platform: homeassistant
     id: ha_air_hvac_mode
     entity_id: ${climate_entity}
     on_value:
-      - lambda: |-
-          id(air_btn_power_active) = (x != "off" && x != "unknown" && x != "unavailable");
-          if (x != "off" && x != "unknown" && x != "unavailable") {
-            id(air_last_hvac_mode) = x;
-            id(air_hvac_mode_pending) = x;
-          }
-      - script.execute: refresh_air
-      - script.execute: menu_on_ha_update
+      - script.execute:
+          id: air_apply_hvac_mode
+          mode: !lambda 'return x;'
 
   - platform: homeassistant
     id: ha_air_hvac_modes
@@ -208,7 +220,9 @@ text_sensor:
     attribute: hvac_modes
     internal: true
     on_value:
-      - script.execute: air_parse_hvac_modes
+      - script.execute:
+          id: air_parse_hvac_modes
+          raw: !lambda 'return x;'
 
   - platform: homeassistant
     id: ha_air_fan_mode
@@ -216,14 +230,9 @@ text_sensor:
     attribute: fan_mode
     internal: true
     on_value:
-      - lambda: |-
-          if (x.empty()) return;
-          std::string lower = x;
-          for (char &c : lower) c = (char) std::tolower((unsigned char) c);
-          if (lower == "unknown" || lower == "unavailable" || lower == "none" || lower == "null") return;
-          id(air_fan_mode_pending) = x;
-          id(air_last_valid_fan_mode) = x;
-      - script.execute: refresh_air
+      - script.execute:
+          id: air_apply_fan_mode
+          mode: !lambda 'return x;'
 
   - platform: homeassistant
     id: ha_air_fan_modes
@@ -231,13 +240,16 @@ text_sensor:
     attribute: fan_modes
     internal: true
     on_value:
-      - script.execute: air_parse_fan_modes
+      - script.execute:
+          id: air_parse_fan_modes
+          raw: !lambda 'return x;'
 
 script:
   - id: open_air
     then:
       - globals.set: {id: in_air, value: 'true'}
       - globals.set: {id: in_menu, value: 'false'}
+      - script.execute: air_refresh_from_active
       - globals.set: {id: air_encoder_step_accum, value: '0'}
       - lambda: |-
           id(air_hvac_mode_pending) = "";
@@ -262,7 +274,9 @@ script:
       - homeassistant.service:
           service: climate.set_temperature
           data:
-            entity_id: ${climate_entity}
+            entity_id: !lambda |-
+              if (id(dial_climates_id).climate_count() > 0) return id(dial_climates_id).active_entity_id();
+              return std::string("${climate_entity}");
             temperature: !lambda 'return std::to_string((int)(id(air_temp) / 2));'
       - script.execute: refresh_air
 
@@ -275,11 +289,107 @@ script:
       - homeassistant.service:
           service: climate.set_temperature
           data:
-            entity_id: ${climate_entity}
+            entity_id: !lambda |-
+              if (id(dial_climates_id).climate_count() > 0) return id(dial_climates_id).active_entity_id();
+              return std::string("${climate_entity}");
             temperature: !lambda 'return std::to_string((int)(id(air_temp) / 2));'
       - script.execute: refresh_air
 
+
+  # Values coming from Home Assistant land here, from either path, so the page has a
+  # single place to read from.
+  - id: air_apply_target_temp
+    parameters:
+      value: float
+    then:
+      - lambda: 'id(air_temp) = (int)(value) * 2;'
+      - script.execute: refresh_air
+      - script.execute: menu_on_ha_update
+
+  - id: air_apply_current_temp
+    parameters:
+      value: float
+    then:
+      - lambda: 'id(air_ha_current_temp) = value;'
+      - script.execute: refresh_air
+      - script.execute: menu_on_ha_update
+
+  - id: air_apply_humidity
+    parameters:
+      value: float
+    then:
+      - lambda: 'id(air_ha_humidity) = value;'
+      - script.execute: refresh_air
+
+  - id: air_apply_hvac_mode
+    parameters:
+      mode: string
+    then:
+      - lambda: |-
+          id(air_ha_hvac_mode) = mode;
+          id(air_btn_power_active) = (mode != "off" && mode != "unknown" && mode != "unavailable");
+          if (mode != "off" && mode != "unknown" && mode != "unavailable") {
+            id(air_last_hvac_mode) = mode;
+            id(air_hvac_mode_pending) = mode;
+          }
+      - script.execute: refresh_air
+      - script.execute: menu_on_ha_update
+
+  - id: air_apply_fan_mode
+    parameters:
+      mode: string
+    then:
+      - lambda: |-
+          id(air_ha_fan_mode) = mode;
+          if (mode.empty()) return;
+          std::string lower = mode;
+          for (char &c : lower) c = (char) std::tolower((unsigned char) c);
+          if (lower == "unknown" || lower == "unavailable" || lower == "none" || lower == "null") return;
+          id(air_fan_mode_pending) = mode;
+          id(air_last_valid_fan_mode) = mode;
+      - script.execute: refresh_air
+
+  # Pushes the active climate's readings into those same globals. Called when the AC
+  # page opens and after the selector changes climate; with no declared climates the
+  # legacy entity's own handlers already keep the page up to date.
+  - id: air_refresh_from_active
+    then:
+      - if:
+          condition:
+            lambda: 'return id(dial_climates_id).climate_count() > 0;'
+          then:
+            - script.execute:
+                id: air_apply_target_temp
+                value: !lambda |-
+                  if (!id(dial_climates_id).active_target_temp_valid()) return NAN;
+                  return id(dial_climates_id).active_target_temp();
+            - script.execute:
+                id: air_apply_current_temp
+                value: !lambda |-
+                  if (!id(dial_climates_id).active_current_temp_valid()) return NAN;
+                  return id(dial_climates_id).active_current_temp();
+            - script.execute:
+                id: air_apply_humidity
+                value: !lambda |-
+                  if (!id(dial_climates_id).active_humidity_valid()) return NAN;
+                  return id(dial_climates_id).active_humidity();
+            - script.execute:
+                id: air_apply_hvac_mode
+                mode: !lambda 'return id(dial_climates_id).active_hvac_mode();'
+            - script.execute:
+                id: air_parse_hvac_modes
+                raw: !lambda 'return id(dial_climates_id).active_hvac_modes();'
+            - script.execute:
+                id: air_apply_fan_mode
+                mode: !lambda 'return id(dial_climates_id).active_fan_mode();'
+            - script.execute:
+                id: air_parse_fan_modes
+                raw: !lambda 'return id(dial_climates_id).active_fan_modes();'
+            - script.execute: refresh_air
+
   - id: air_parse_hvac_modes
+    parameters:
+      raw: string
     then:
       - lambda: |-
           static auto is_invalid = [](const std::string &s) -> bool {
@@ -316,7 +426,6 @@ script:
             return csv;
           };
 
-          const std::string &raw = id(ha_air_hvac_modes).state;
           if (is_invalid(raw)) {
             id(air_hvac_modes_csv) = "";
             return;
@@ -325,6 +434,8 @@ script:
       - script.execute: refresh_air
 
   - id: air_parse_fan_modes
+    parameters:
+      raw: string
     then:
       - lambda: |-
           static auto is_invalid = [](const std::string &s) -> bool {
@@ -359,7 +470,6 @@ script:
             return csv;
           };
 
-          const std::string &raw = id(ha_air_fan_modes).state;
           if (is_invalid(raw)) {
             id(air_fan_modes_csv) = "";
             id(air_fan_modes_supported) = false;
@@ -413,12 +523,12 @@ script:
       - if:
           condition:
             lambda: |-
-              const std::string &s = id(ha_air_hvac_mode).state;
+              const std::string &s = id(air_ha_hvac_mode);
               return s != "unknown" && s != "unavailable";
           then:
             - if:
                 condition:
-                  lambda: 'return id(ha_air_hvac_mode).state == "off";'
+                  lambda: 'return id(air_ha_hvac_mode) == "off";'
                 then:
                   - lambda: |-
                       static auto is_invalid = [](const std::string &s) -> bool {
@@ -471,7 +581,9 @@ script:
                         - homeassistant.service:
                             service: climate.set_hvac_mode
                             data:
-                              entity_id: ${climate_entity}
+                              entity_id: !lambda |-
+                                if (id(dial_climates_id).climate_count() > 0) return id(dial_climates_id).active_entity_id();
+                                return std::string("${climate_entity}");
                               hvac_mode: !lambda 'return id(air_hvac_mode_pending);'
                 else:
                   - lambda: |-
@@ -480,7 +592,9 @@ script:
                   - homeassistant.service:
                       service: climate.turn_off
                       data:
-                        entity_id: ${climate_entity}
+                        entity_id: !lambda |-
+                          if (id(dial_climates_id).climate_count() > 0) return id(dial_climates_id).active_entity_id();
+                          return std::string("${climate_entity}");
       - script.execute: refresh_air
 
   - id: air_fan_step
@@ -522,8 +636,8 @@ script:
           std::string current;
           if (!is_invalid(id(air_fan_mode_pending))) {
             current = id(air_fan_mode_pending);
-          } else if (id(ha_air_fan_mode).has_state() && !is_invalid(id(ha_air_fan_mode).state)) {
-            current = id(ha_air_fan_mode).state;
+          } else if (!id(air_ha_fan_mode).empty() && !is_invalid(id(air_ha_fan_mode))) {
+            current = id(air_ha_fan_mode);
           }
 
           size_t idx = 0;
@@ -555,7 +669,9 @@ script:
             - homeassistant.service:
                 service: climate.set_fan_mode
                 data:
-                  entity_id: ${climate_entity}
+                  entity_id: !lambda |-
+                    if (id(dial_climates_id).climate_count() > 0) return id(dial_climates_id).active_entity_id();
+                    return std::string("${climate_entity}");
                   fan_mode: !lambda 'return id(air_fan_mode_pending);'
       - script.execute: refresh_air
 
@@ -598,8 +714,8 @@ script:
           std::string current;
           if (!is_invalid(id(air_hvac_mode_pending))) {
             current = id(air_hvac_mode_pending);
-          } else if (id(ha_air_hvac_mode).has_state() && !is_invalid(id(ha_air_hvac_mode).state)) {
-            current = id(ha_air_hvac_mode).state;
+          } else if (!id(air_ha_hvac_mode).empty() && !is_invalid(id(air_ha_hvac_mode))) {
+            current = id(air_ha_hvac_mode);
           }
 
           size_t idx = 0;
@@ -631,7 +747,9 @@ script:
             - homeassistant.service:
                 service: climate.set_hvac_mode
                 data:
-                  entity_id: ${climate_entity}
+                  entity_id: !lambda |-
+                    if (id(dial_climates_id).climate_count() > 0) return id(dial_climates_id).active_entity_id();
+                    return std::string("${climate_entity}");
                   hvac_mode: !lambda 'return id(air_hvac_mode_pending);'
       - script.execute: refresh_air
 
@@ -704,8 +822,8 @@ script:
           }
           lv_label_set_text(id(lbl_air_temp), tbuf);
 
-          float ct = id(ha_air_current_temp).state;
-          float hm = id(ha_air_humidity).state;
+          float ct = id(air_ha_current_temp);
+          float hm = id(air_ha_humidity);
           if (isnan(ct)) ct = (float)(t / 2);
           if (isnan(hm)) hm = 60.0f;
 
@@ -718,8 +836,8 @@ script:
           std::string hvac_mode;
           if (cm == 2 && !is_invalid(id(air_hvac_mode_pending))) {
             hvac_mode = id(air_hvac_mode_pending);
-          } else if (id(ha_air_hvac_mode).has_state()) {
-            hvac_mode = id(ha_air_hvac_mode).state;
+          } else if (!id(air_ha_hvac_mode).empty()) {
+            hvac_mode = id(air_ha_hvac_mode);
           }
           if (is_invalid(hvac_mode)) hvac_mode = "off";
 
@@ -734,8 +852,8 @@ script:
           std::string fan_mode;
           if (cm == 1 && !is_invalid(id(air_fan_mode_pending))) {
             fan_mode = id(air_fan_mode_pending);
-          } else if (id(ha_air_fan_mode).has_state() && !is_invalid(id(ha_air_fan_mode).state)) {
-            fan_mode = id(ha_air_fan_mode).state;
+          } else if (!id(air_ha_fan_mode).empty() && !is_invalid(id(air_ha_fan_mode))) {
+            fan_mode = id(air_ha_fan_mode);
           }
           static char fan_buf[28];
           format_fan_label(fan_mode, fan_buf, sizeof(fan_buf));
@@ -807,8 +925,8 @@ script:
             std::string fan_mode_seg;
             if (!is_invalid(id(air_fan_mode_pending))) {
               fan_mode_seg = id(air_fan_mode_pending);
-            } else if (id(ha_air_fan_mode).has_state() && !is_invalid(id(ha_air_fan_mode).state)) {
-              fan_mode_seg = id(ha_air_fan_mode).state;
+            } else if (!id(air_ha_fan_mode).empty() && !is_invalid(id(air_ha_fan_mode))) {
+              fan_mode_seg = id(air_ha_fan_mode);
             } else if (!is_invalid(id(air_last_valid_fan_mode))) {
               fan_mode_seg = id(air_last_valid_fan_mode);
             }

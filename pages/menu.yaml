@@ -116,7 +116,8 @@ script:
             items[n++] = 0;
           if (id(dial_lights_id).light_count() > 0)
             items[n++] = 1;
-          if (strcmp("${climate_entity}", "climate.your_ac") != 0)
+          if (id(dial_climates_id).climate_count() > 0 ||
+              strcmp("${climate_entity}", "climate.your_ac") != 0)
             items[n++] = 2;
           if (strcmp("${music_player_entity}", "media_player.your_player") != 0)
             items[n++] = 3;
@@ -178,7 +179,8 @@ script:
                     local_items[local_n++] = 0;
                   if (id(dial_lights_id).light_count() > 0)
                     local_items[local_n++] = 1;
-                  if (strcmp("${climate_entity}", "climate.your_ac") != 0)
+                  if (id(dial_climates_id).climate_count() > 0 ||
+                      strcmp("${climate_entity}", "climate.your_ac") != 0)
                     local_items[local_n++] = 2;
                   if (strcmp("${music_player_entity}", "media_player.your_player") != 0)
                     local_items[local_n++] = 3;
@@ -211,7 +213,8 @@ script:
                     local_items[local_n++] = 0;
                   if (id(dial_lights_id).light_count() > 0)
                     local_items[local_n++] = 1;
-                  if (strcmp("${climate_entity}", "climate.your_ac") != 0)
+                  if (id(dial_climates_id).climate_count() > 0 ||
+                      strcmp("${climate_entity}", "climate.your_ac") != 0)
                     local_items[local_n++] = 2;
                   if (strcmp("${music_player_entity}", "media_player.your_player") != 0)
                     local_items[local_n++] = 3;
@@ -246,7 +249,12 @@ script:
               }
               break;
             case 2:
-              id(open_air).execute();
+              if (id(dial_climates_id).climate_count() > 1) {
+                id(open_climate_selector).execute();
+              } else {
+                if (id(dial_climates_id).climate_count() == 1) id(dial_climates_id).select_climate(0);
+                id(open_air).execute();
+              }
               break;
             case 3:
               id(open_music).execute();
@@ -377,25 +385,38 @@ script:
                 return true;
               };
 
+              // Readings come from the active climate when the package manages several,
+              // and from the legacy single entity otherwise.
+              std::string hvac_mode_str;
+              float target_temp = NAN;
+              float current_temp = NAN;
+              if (id(dial_climates_id).climate_count() > 0) {
+                if (id(dial_climates_id).active_hvac_mode_valid())
+                  hvac_mode_str = id(dial_climates_id).active_hvac_mode();
+                if (id(dial_climates_id).active_target_temp_valid())
+                  target_temp = id(dial_climates_id).active_target_temp();
+                if (id(dial_climates_id).active_current_temp_valid())
+                  current_temp = id(dial_climates_id).active_current_temp();
+              } else {
+                if (id(ha_air_hvac_mode).has_state()) hvac_mode_str = id(ha_air_hvac_mode).state;
+                if (id(ha_air_target_temp).has_state()) target_temp = id(ha_air_target_temp).state;
+                if (id(ha_air_current_temp).has_state()) current_temp = id(ha_air_current_temp).state;
+              }
+
               char statebuf[16] = "";
               bool has_state = false;
-              if (id(ha_air_hvac_mode).has_state() && !is_invalid_state(id(ha_air_hvac_mode).state)) {
-                has_state = hvac_label(id(ha_air_hvac_mode).state, statebuf, sizeof(statebuf));
+              if (!hvac_mode_str.empty() && !is_invalid_state(hvac_mode_str)) {
+                has_state = hvac_label(hvac_mode_str, statebuf, sizeof(statebuf));
               }
 
               float setpoint = NAN;
-              if (id(ha_air_target_temp).has_state()) {
-                const float target = id(ha_air_target_temp).state;
-                if (!isnan(target)) setpoint = target;
-              }
+              if (!isnan(target_temp)) setpoint = target_temp;
               if (isnan(setpoint) && id(ha_connected)) {
                 const int t2 = id(air_temp);
                 setpoint = t2 / 2.0f;
               }
-              if (isnan(setpoint) && id(ha_air_current_temp).has_state()) {
-                const float ct = id(ha_air_current_temp).state;
-                if (!isnan(ct)) setpoint = ct;
-              }
+              if (isnan(setpoint) && !isnan(current_temp))
+                setpoint = current_temp;
 
               char tempbuf[16] = "";
               const bool has_temp = format_setpoint(setpoint, tempbuf, sizeof(tempbuf));
@@ -457,7 +478,8 @@ script:
             items[n++] = 0;
           if (id(dial_lights_id).light_count() > 0)
             items[n++] = 1;
-          if (strcmp("${climate_entity}", "climate.your_ac") != 0)
+          if (id(dial_climates_id).climate_count() > 0 ||
+              strcmp("${climate_entity}", "climate.your_ac") != 0)
             items[n++] = 2;
           if (strcmp("${music_player_entity}", "media_player.your_player") != 0)
             items[n++] = 3;
@@ -511,7 +533,8 @@ script:
             items[n++] = 0;
           if (id(dial_lights_id).light_count() > 0)
             items[n++] = 1;
-          if (strcmp("${climate_entity}", "climate.your_ac") != 0)
+          if (id(dial_climates_id).climate_count() > 0 ||
+              strcmp("${climate_entity}", "climate.your_ac") != 0)
             items[n++] = 2;
           if (strcmp("${music_player_entity}", "media_player.your_player") != 0)
             items[n++] = 3;

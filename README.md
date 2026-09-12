@@ -118,6 +118,10 @@ packages:
         vars: {prefix: mesa, light: light.mesa, name: Mesa}
       - path: main/dial_light.yaml
         vars: {prefix: jardin, light: light.luces_jardin, name: Jardín}
+      - path: main/dial_climate.yaml
+        vars: {prefix: buhardilla, climate: climate.ac_buhardilla, name: Buhardilla}
+      - path: main/dial_climate.yaml
+        vars: {prefix: salon, climate: climate.ac_salon, name: Salón}
 ```
 
 Create the referenced secrets in ESPHome, for example:
@@ -128,7 +132,7 @@ wifi_ssid: "your-wifi-network"
 wifi_password: "your-wifi-password"
 ```
 
-The package contains the device hardware, pages and components, but no lights: every light is one `main/dial_light.yaml` entry in your own `packages:` block, so the package stays reusable. Add or remove an entry to add or remove a light; with no entries at all, Lights disappears from the menu. Do not edit `main/entities.yaml`, `pages/main.yaml` or other package files.
+The package contains the device hardware, pages and components, but no lights or climates: each one is a `main/dial_light.yaml` or `main/dial_climate.yaml` entry in your own `packages:` block, so the package stays reusable. Add or remove an entry to add or remove a light; with no entries at all, Lights disappears from the menu. Do not edit `main/entities.yaml`, `pages/main.yaml` or other package files.
 
 `ref: main` follows the version currently published on `main`. `refresh: 0s` makes ESPHome check the remote package on every configuration or build, which is useful while tracking that branch but depends on GitHub being reachable and can add download time. It is optional; pin a tag or commit in `ref` when reproducible builds matter.
 
@@ -143,7 +147,7 @@ The Dial supports the rotary encoder, the front button, horizontal touch gesture
 | Clock (Home) | No action | Opens Menu | Swipe right opens Menu too. A long press has no action. |
 | Menu | Moves the circular selection | Opens the selected page; Home returns to Clock | Tap a visible menu item to open it. Swipe right returns to Clock. |
 | Lights | Changes brightness or the active selector value | Opens/accepts the selected light, according to context | Touch controls power, colour picker and colour confirmation. |
-| AC | Changes the selected value | Accepts or confirms the current edit | Touch selects controls and toggles power, fan mode or HVAC mode. |
+| AC | Changes the selected value | Accepts or confirms the current edit | Touch selects controls and toggles power, fan mode or HVAC mode. With several climates configured, this page opens a selector first. |
 | Music | Changes volume | Accepts the current action where applicable | Touch controls playback and transport. |
 | Timer | Adjusts the selected duration unit while the timer is idle | Starts, pauses, resumes or clears the finished state | Touch selects hours/minutes/seconds and accesses reset/cancel. |
 
@@ -209,7 +213,7 @@ m5stack-dial-home-assistant/
 ├── dial.yaml                 # Remote ESPHome package entry point
 ├── secrets.example.yaml      # Example credentials for local development
 ├── requirements.txt          # ESPHome version used by this project
-├── main/                     # Hardware, entities, idle logic and the per-light template
+├── main/                     # Hardware, entities, idle logic and the per-device templates
 ├── pages/                    # LVGL pages for clock, menu and features
 ├── fonts/                    # Fonts
 ├── images/                   # Embedded images

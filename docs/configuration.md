@@ -142,12 +142,40 @@ sensor:
 
 ### Climate
 
+Every configured air conditioner or thermostat is one entry of the package file list, the same way lights work. Add one `main/dial_climate.yaml` entry per climate and pass it through `vars:`:
+
+```yaml
+packages:
+  smart_home_button:
+    url: https://github.com/mjimeneznet/m5stack-dial-home-assistant
+    ref: main
+    refresh: 0s
+    files:
+      - dial.yaml
+      - path: main/dial_climate.yaml
+        vars: {prefix: buhardilla, climate: climate.ac_buhardilla, name: Buhardilla}
+      - path: main/dial_climate.yaml
+        vars: {prefix: salon, climate: climate.ac_salon, name: Salón}
+```
+
+| Variable | Meaning |
+| --- | --- |
+| `prefix` | Short, unique id prefix for this climate's sensors (`buhardilla`, `salon`, ...). Lowercase, no spaces. |
+| `climate` | The Home Assistant climate `entity_id`. |
+| `name` | The label shown on the Dial and in the selector. |
+
+The template declares the sensors the page reads — target temperature, current temperature, humidity, HVAC mode, HVAC modes, fan mode and fan modes — and drives the page only for the climate you have selected. An attribute a climate does not expose simply stays empty.
+
+With **one** climate the menu opens the AC page directly. With **more than one** it opens a selector first: rotate to move between climates, swipe left (or a short press) to open the selected one, swipe right to go back. From the AC page, back returns to the selector.
+
+The page supports target temperature and uses the modes advertised by the entity. HVAC mode, fan mode and swing-related capabilities vary between Home Assistant integrations, so only controls supported by the entity should be expected.
+
+Without any `main/dial_climate.yaml` entry, the legacy single-climate mode still works: set the substitution and the page uses that entity, hidden when it keeps its placeholder value.
+
 ```yaml
 substitutions:
   climate_entity: climate.living_room
 ```
-
-The page supports target temperature and uses modes advertised by the entity. HVAC mode, fan mode and swing-related capabilities vary between Home Assistant integrations, so only controls supported by the entity should be expected.
 
 ### Music
 

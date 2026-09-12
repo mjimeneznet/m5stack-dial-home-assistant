@@ -150,6 +150,8 @@ script:
 
   # Shared confirmation chain, used by the front button and by a left swipe, so the
   # button is never required: a left swipe confirms/opens exactly like a short press.
+  # Shared confirmation chain, used by the front button and by a left swipe, so the
+  # button is never required: a left swipe confirms/opens exactly like a short press.
   - id: dial_confirm
     then:
       - if:
@@ -157,7 +159,7 @@ script:
             lambda: |-
               return !id(in_menu) && !id(in_light_selector) && !id(in_light)
                   && !id(in_air) && !id(in_music) && !id(in_timer)
-                  && !id(in_colorpicker);
+                  && !id(in_colorpicker) && !id(in_climate_selector);
           then:
             - script.execute: open_menu
           else:
@@ -187,15 +189,21 @@ script:
                                   else:
                                     - if:
                                         condition:
-                                          lambda: 'return id(in_menu);'
+                                          lambda: 'return id(in_climate_selector);'
                                         then:
-                                          - script.execute: dial_enter_selected
+                                          - script.execute: climate_selector_confirm
                                         else:
                                           - if:
                                               condition:
-                                                lambda: 'return id(in_air) || id(in_light) || id(in_music);'
+                                                lambda: 'return id(in_menu);'
                                               then:
-                                                - script.execute: dial_back
+                                                - script.execute: dial_enter_selected
+                                              else:
+                                                - if:
+                                                    condition:
+                                                      lambda: 'return id(in_air) || id(in_light) || id(in_music);'
+                                                    then:
+                                                      - script.execute: dial_back
 
   - id: dial_gesture_left
     then:
@@ -244,6 +252,10 @@ script:
                   id(close_light_selector).execute();
                   return;
                 }
+                if (id(in_climate_selector)) {
+                  id(close_climate_selector).execute();
+                  return;
+                }
                 if (id(in_menu)) {
                   id(close_menu).execute();
                   return;
@@ -262,7 +274,12 @@ script:
                   return;
                 }
                 if (id(in_air)) {
-                  id(close_air).execute();
+                  if (id(dial_climates_id).climate_count() > 1) {
+                    id(in_air) = false;
+                    id(open_climate_selector_back).execute();
+                  } else {
+                    id(close_air).execute();
+                  }
                   return;
                 }
                 if (id(in_music)) {
@@ -290,6 +307,19 @@ sensor:
       - script.execute:
           id: dial_register_activity
           source: "encoder"
+
+      # Climate selector: one step per detent on its own accumulator.
+      - if:
+          condition:
+            lambda: |-
+              return !id(idle_event_consumed) && id(in_climate_selector);
+          then:
+            - lambda: |-
+                const int after = id(climate_selector_encoder_accum) + 1;
+                id(climate_selector_encoder_accum) = after;
+                if (after < 4) return;
+                id(climate_selector_encoder_accum) = 0;
+                id(climate_selector_step).execute(1);
       - if:
           condition:
             lambda: 'return !id(idle_event_consumed);'
@@ -368,6 +398,19 @@ sensor:
       - script.execute:
           id: dial_register_activity
           source: "encoder"
+
+      # Climate selector: one step per detent on its own accumulator.
+      - if:
+          condition:
+            lambda: |-
+              return !id(idle_event_consumed) && id(in_climate_selector);
+          then:
+            - lambda: |-
+                const int after = id(climate_selector_encoder_accum) - 1;
+                id(climate_selector_encoder_accum) = after;
+                if (after < 4) return;
+                id(climate_selector_encoder_accum) = 0;
+                id(climate_selector_step).execute(-1);
       - if:
           condition:
             lambda: 'return !id(idle_event_consumed);'

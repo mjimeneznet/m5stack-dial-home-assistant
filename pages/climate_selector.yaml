@@ -1,0 +1,166 @@
+# Climate selector: picks which declared climate the AC page controls.
+#
+# Only reachable when more than one `main/dial_climate.yaml` entry is configured; with a
+# single climate the menu opens the AC page directly, and with none the legacy
+# `climate_entity` page is used as before.
+font:
+  - file:
+      family: DM+Sans
+      weight: 700
+      type: gfonts
+    id: font_climate_name
+    size: 20
+    bpp: 4
+    glyphs: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 áéíóúüñÁÉÍÓÚÜÑ-."
+
+  - file:
+      family: DM+Sans
+      weight: 500
+      type: gfonts
+    id: font_climate_sub
+    size: 14
+    bpp: 4
+    glyphs: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .:°%/·-"
+
+globals:
+  - id: in_climate_selector
+    type: bool
+    initial_value: 'false'
+  - id: climate_selector_encoder_accum
+    type: int
+    initial_value: '0'
+
+script:
+  - id: open_climate_selector
+    then:
+      - if:
+          condition:
+            lambda: 'return id(dial_climates_id).climate_count() > 1;'
+          then:
+            - globals.set: {id: in_climate_selector, value: 'true'}
+            - globals.set: {id: in_air, value: 'false'}
+            - globals.set: {id: in_menu, value: 'false'}
+            - globals.set: {id: climate_selector_encoder_accum, value: '0'}
+            - script.execute: refresh_climate_selector
+            - lvgl.page.show:
+                id: page_climate_selector
+                animation: MOVE_LEFT
+
+  # Same page, coming back from the AC page.
+  - id: open_climate_selector_back
+    then:
+      - globals.set: {id: in_climate_selector, value: 'true'}
+      - globals.set: {id: in_air, value: 'false'}
+      - globals.set: {id: in_menu, value: 'false'}
+      - globals.set: {id: climate_selector_encoder_accum, value: '0'}
+      - script.execute: refresh_climate_selector
+      - lvgl.page.show:
+          id: page_climate_selector
+          animation: MOVE_RIGHT
+
+  - id: close_climate_selector
+    then:
+      - globals.set: {id: in_climate_selector, value: 'false'}
+      - globals.set: {id: climate_selector_encoder_accum, value: '0'}
+      - script.execute: open_menu_back
+
+  - id: climate_selector_step
+    parameters:
+      direction: int
+    then:
+      - if:
+          condition:
+            lambda: 'return id(dial_climates_id).climate_count() > 1;'
+          then:
+            - lambda: |-
+                if (direction > 0) {
+                  id(dial_climates_id).select_next();
+                } else {
+                  id(dial_climates_id).select_previous();
+                }
+            - script.execute: refresh_climate_selector
+
+  - id: climate_selector_confirm
+    then:
+      - globals.set: {id: in_climate_selector, value: 'false'}
+      - globals.set: {id: climate_selector_encoder_accum, value: '0'}
+      - script.execute: open_air
+
+  - id: refresh_climate_selector
+    then:
+      - lambda: |-
+          const size_t count = id(dial_climates_id).climate_count();
+          if (count == 0) return;
+          lv_label_set_text(id(lbl_climate_name), id(dial_climates_id).active_name().c_str());
+
+          static char idxbuf[16];
+          snprintf(idxbuf, sizeof(idxbuf), "%u/%u",
+                   static_cast<unsigned>(id(dial_climates_id).active_index() + 1),
+                   static_cast<unsigned>(count));
+          lv_label_set_text(id(lbl_climate_index), idxbuf);
+
+          std::string mode;
+          if (id(dial_climates_id).active_hvac_mode_valid()) {
+            mode = id(dial_climates_id).active_hvac_mode();
+          }
+          const bool is_on = id(dial_climates_id).active_is_on();
+          const bool temp_valid = id(dial_climates_id).active_current_temp_valid();
+          const float temp = id(dial_climates_id).active_current_temp();
+
+          static char subbuf[48];
+          if (!is_on) {
+            snprintf(subbuf, sizeof(subbuf), "Off");
+          } else if (temp_valid) {
+            snprintf(subbuf, sizeof(subbuf), "%.0f °C · %s",
+                     temp, mode.empty() ? "-" : mode.c_str());
+          } else if (!mode.empty()) {
+            snprintf(subbuf, sizeof(subbuf), "%s", mode.c_str());
+          } else {
+            snprintf(subbuf, sizeof(subbuf), "Unavailable");
+          }
+          lv_label_set_text(id(lbl_climate_sub), subbuf);
+
+lvgl:
+  pages:
+    - id: page_climate_selector
+      bg_color: col_air_bg
+      bg_opa: COVER
+      scrollbar_mode: "OFF"
+      widgets:
+        - label:
+            id: lbl_climate_title
+            align: CENTER
+            y: -80
+            text_font: font_climate_sub
+            text_color: col_air_text_dim
+            text: "Climate"
+            text_align: CENTER
+
+        - label:
+            id: lbl_climate_name
+            align: CENTER
+            y: -18
+            width: 200
+            text_font: font_climate_name
+            text_color: col_air_blue
+            text: "Climate"
+            text_align: CENTER
+
+        - label:
+            id: lbl_climate_sub
+            align: CENTER
+            y: 18
+            width: 200
+            text_font: font_climate_sub
+            text_color: col_air_text_dim
+            text: ""
+            text_align: CENTER
+
+        - label:
+            id: lbl_climate_index
+            align: CENTER
+            y: 72
+            text_font: font_climate_sub
+            text_color: col_air_text_dim
+            text: ""
+            text_align: CENTER

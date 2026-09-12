@@ -40,39 +40,95 @@ sensor:
     entity_id: ${climate}
     attribute: temperature
     internal: true
+    on_value:
+      - if:
+          condition:
+            lambda: 'return id(dial_climates_id).active_entity_id() == "${climate}";'
+          then:
+            - script.execute:
+                id: air_apply_target_temp
+                value: !lambda 'return x;'
 
   - platform: homeassistant
     id: dial_climate_${prefix}_current_temp
     entity_id: ${climate}
     attribute: current_temperature
     internal: true
+    on_value:
+      - if:
+          condition:
+            lambda: 'return id(dial_climates_id).active_entity_id() == "${climate}";'
+          then:
+            - script.execute:
+                id: air_apply_current_temp
+                value: !lambda 'return x;'
 
   - platform: homeassistant
     id: dial_climate_${prefix}_humidity
     entity_id: ${climate}
     attribute: current_humidity
     internal: true
+    on_value:
+      - if:
+          condition:
+            lambda: 'return id(dial_climates_id).active_entity_id() == "${climate}";'
+          then:
+            - script.execute:
+                id: air_apply_humidity
+                value: !lambda 'return x;'
 
 text_sensor:
   - platform: homeassistant
     id: dial_climate_${prefix}_hvac_mode
     entity_id: ${climate}
     internal: true
+    on_value:
+      - if:
+          condition:
+            lambda: 'return id(dial_climates_id).active_entity_id() == "${climate}";'
+          then:
+            - script.execute:
+                id: air_apply_hvac_mode
+                mode: !lambda 'return x;'
 
   - platform: homeassistant
     id: dial_climate_${prefix}_hvac_modes
     entity_id: ${climate}
     attribute: hvac_modes
     internal: true
+    on_value:
+      - if:
+          condition:
+            lambda: 'return id(dial_climates_id).active_entity_id() == "${climate}";'
+          then:
+            - script.execute:
+                id: air_parse_hvac_modes
+                raw: !lambda 'return x;'
 
   - platform: homeassistant
     id: dial_climate_${prefix}_fan_mode
     entity_id: ${climate}
     attribute: fan_mode
     internal: true
+    on_value:
+      - if:
+          condition:
+            lambda: 'return id(dial_climates_id).active_entity_id() == "${climate}";'
+          then:
+            - script.execute:
+                id: air_apply_fan_mode
+                mode: !lambda 'return x;'
 
   - platform: homeassistant
     id: dial_climate_${prefix}_fan_modes
     entity_id: ${climate}
     attribute: fan_modes
     internal: true
+    on_value:
+      - if:
+          condition:
+            lambda: 'return id(dial_climates_id).active_entity_id() == "${climate}";'
+          then:
+            - script.execute:
+                id: air_parse_fan_modes
+                raw: !lambda 'return x;'

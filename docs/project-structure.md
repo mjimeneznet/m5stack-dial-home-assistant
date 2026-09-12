@@ -13,6 +13,8 @@
 - `main/hardware.yaml`: M5Stack Dial hardware drivers and pins.
 - `main/entities.yaml`: Home Assistant entity bindings.
 - `main/dial_light.yaml`: template for one light (its `dial_lights` entry plus the Home Assistant sensors the page reads).
+- `main/dial_climate.yaml`: template for one climate (its `dial_climates` entry plus the sensors the AC page reads).
+- `pages/climate_selector.yaml`: climate selector, used when more than one climate is configured.
 - `pages/*.yaml`: one LVGL page per feature.
 - `fonts/`: fonts downloaded over HTTPS by the remote package.
 - `images/`: small image assets downloaded over HTTPS by the remote package.
