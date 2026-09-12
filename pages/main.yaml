@@ -408,7 +408,7 @@ sensor:
             - lambda: |-
                 const int after = id(climate_selector_encoder_accum) - 1;
                 id(climate_selector_encoder_accum) = after;
-                if (after < 4) return;
+                if (after > -4) return;
                 id(climate_selector_encoder_accum) = 0;
                 id(climate_selector_step).execute(-1);
       - if:
