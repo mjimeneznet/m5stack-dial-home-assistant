@@ -109,42 +109,50 @@ globals:
     initial_value: 'false'
 
 image:
-  - file: ${asset_base_url}/images/logo.png
+  - platform: file
+    file: ${asset_base_url}/images/logo.png
     id: logo_img
     type: RGB565
     transparency: alpha_channel
     resize: 72x72
-  - file: ${asset_base_url}/images/scene.png
+  - platform: file
+    file: ${asset_base_url}/images/scene.png
     id: img_scene
     type: RGB565
     transparency: alpha_channel
     resize: 24x24
-  - file: ${asset_base_url}/images/bulb.png
+  - platform: file
+    file: ${asset_base_url}/images/bulb.png
     id: img_light
     type: RGB565
     transparency: alpha_channel
     resize: 24x24
-  - file: ${asset_base_url}/images/ac.png
+  - platform: file
+    file: ${asset_base_url}/images/ac.png
     id: img_ac
     type: RGB565
     transparency: alpha_channel
     resize: 24x24
-  - file: ${asset_base_url}/images/music.png
+  - platform: file
+    file: ${asset_base_url}/images/music.png
     id: img_music
     type: RGB565
     transparency: alpha_channel
     resize: 24x24
-  - file: ${asset_base_url}/images/palette.png
+  - platform: file
+    file: ${asset_base_url}/images/palette.png
     id: img_palette
     type: RGB565
     transparency: alpha_channel
     resize: 24x24
-  - file: ${asset_base_url}/images/brightness.png
+  - platform: file
+    file: ${asset_base_url}/images/brightness.png
     id: img_brightness
     type: RGB565
     transparency: alpha_channel
     resize: 24x24
-  - file: ${asset_base_url}/images/light.png
+  - platform: file
+    file: ${asset_base_url}/images/light.png
     id: img_dengguang
     type: RGB565
     transparency: alpha_channel
