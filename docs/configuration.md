@@ -109,6 +109,30 @@ Only an **active** Home Assistant timer blocks RETURN. A paused timer does not. 
 
 `ref: main` follows the version currently published on the repository's `main` branch. `refresh: 0s` makes ESPHome check the remote package on every configuration or build, which is useful while tracking it, but depends on GitHub being reachable and can add download time. It is optional; pin a tag or commit in `ref` for reproducible builds. Recompile after package updates.
 
+### Package assets
+
+ESPHome resolves relative paths inside a remote package against **your** configuration directory, so the package cannot ship its images and fonts as local files. It downloads them from `asset_base_url` instead, which defaults to the repository's `main` branch:
+
+```yaml
+substitutions:
+  asset_base_url: https://raw.githubusercontent.com/mjimeneznet/m5stack-dial-home-assistant/main
+```
+
+Override it with the same ref you pin when you want YAML and assets to move together:
+
+```yaml
+packages:
+  smart_home_button:
+    url: https://github.com/mjimeneznet/m5stack-dial-home-assistant
+    ref: v1.0.0
+    files: [dial.yaml]
+
+substitutions:
+  asset_base_url: https://raw.githubusercontent.com/mjimeneznet/m5stack-dial-home-assistant/v1.0.0
+```
+
+The first validation or build needs network access; ESPHome then caches the downloaded files locally.
+
 Validate before flashing:
 
 ```bash
@@ -124,7 +148,7 @@ Use USB for the initial installation if the device is not on Wi-Fi; later update
 - **Entity not found or unavailable:** check its exact ID and availability in Home Assistant; a configured unavailable feature stays in the menu but cannot synchronise.
 - **Lights missing:** ensure `dial_lights` has at least one entry and is not `[]`.
 - **AQI empty:** use a numeric sensor, not a textual state.
-- **Fonts or glyphs fail during build:** allow the initial build to download Google Fonts and dependencies; use the version pinned in `requirements.txt`.
+- **Fonts or glyphs fail during build:** allow the initial build to download Google Fonts, the package images and fonts, and dependencies; use the version pinned in `requirements.txt`.
 - **Compilation error after an update:** validate the complete local YAML and refresh the package before retrying.
 
 ## Development-only customisation

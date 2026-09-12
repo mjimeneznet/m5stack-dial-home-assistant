@@ -54,6 +54,10 @@ dial_lights:
 substitutions:
   timezone: Europe/Madrid
   light_entity: light.mesa
+  # Remote packages resolve relative asset paths against the *consumer* config
+  # directory, so images and fonts are downloaded over HTTPS instead. Override
+  # this to match the ref you pin in your local `packages:` block.
+  asset_base_url: https://raw.githubusercontent.com/mjimeneznet/m5stack-dial-home-assistant/main
   # Remote packages cannot resolve !secret themselves. Set these from the
   # consumer configuration (usually with !secret values in that local file).
   device_name: m5stack-dialv1
@@ -63,7 +67,7 @@ substitutions:
   ap_ssid: Dial Fallback Hotspot
   ap_password: change-me-fallback-password
   # Public dummy key for validation only. Always override before flashing.
-  api_encryption_key: MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA=
+  api_encryption_key: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
   ota_password: change-me-ota-password
   screen_dim_timeout: 45s
   screen_return_timeout: 5min
@@ -133,42 +137,42 @@ globals:
     initial_value: 'false'
 
 image:
-  - file: images/logo.png
+  - file: ${asset_base_url}/images/logo.png
     id: logo_img
     type: RGB565
     transparency: alpha_channel
     resize: 72x72
-  - file: images/scene.png
+  - file: ${asset_base_url}/images/scene.png
     id: img_scene
     type: RGB565
     transparency: alpha_channel
     resize: 24x24
-  - file: images/bulb.png
+  - file: ${asset_base_url}/images/bulb.png
     id: img_light
     type: RGB565
     transparency: alpha_channel
     resize: 24x24
-  - file: images/ac.png
+  - file: ${asset_base_url}/images/ac.png
     id: img_ac
     type: RGB565
     transparency: alpha_channel
     resize: 24x24
-  - file: images/music.png
+  - file: ${asset_base_url}/images/music.png
     id: img_music
     type: RGB565
     transparency: alpha_channel
     resize: 24x24
-  - file: images/palette.png
+  - file: ${asset_base_url}/images/palette.png
     id: img_palette
     type: RGB565
     transparency: alpha_channel
     resize: 24x24
-  - file: images/brightness.png
+  - file: ${asset_base_url}/images/brightness.png
     id: img_brightness
     type: RGB565
     transparency: alpha_channel
     resize: 24x24
-  - file: images/light.png
+  - file: ${asset_base_url}/images/light.png
     id: img_dengguang
     type: RGB565
     transparency: alpha_channel

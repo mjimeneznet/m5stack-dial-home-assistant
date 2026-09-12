@@ -204,6 +204,7 @@ The package enables GPIO46 at boot for M5Dial V1.1 battery power hold. This keep
 - **Music is unavailable:** use the entity that actually plays audio and exposes its media state.
 - **Timer is unavailable:** create or enable the referenced Home Assistant Timer helper.
 - **Package changes are missing:** use `refresh: 0s` while testing, then reload or recompile the ESPHome configuration.
+- **First validation or build fails:** the package downloads its images and fonts from GitHub, so the first run needs network access; later builds use ESPHome's local cache.
 - **Fonts, glyphs or compilation fail:** ensure the first build can download its dependencies and use the ESPHome version in `requirements.txt`.
 - **First installation fails over the network:** flash over USB first, then use ESPHome OTA updates.
 
