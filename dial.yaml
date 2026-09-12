@@ -180,9 +180,7 @@ lvgl:
   encoders:
     - sensor: encoder
       enter_button: front_button
-  # 12% meant ~9 flush chunks per frame and ~250 ms LVGL passes during page
-  # transitions; 25% halves the number of blocking flushes for +14 KB of RAM.
-  buffer_size: "25%"
+  buffer_size: "12%"
   color_depth: 16
   bg_color: col_bg
   default_font: font_lbl
