@@ -26,11 +26,8 @@ globals:
   - id: in_climate_selector
     type: bool
     initial_value: 'false'
-  # Encoder debounce: the first pulse of a detent moves one step and the rest of the
-  # burst is ignored, so a click means one step in either direction (no per-unit
-  # pulse counting, and no lost pulse when the direction is reversed).
-  - id: climate_selector_last_ms
-    type: uint32_t
+  - id: climate_selector_encoder_accum
+    type: int
     initial_value: '0'
 
 script:
@@ -43,6 +40,7 @@ script:
             - globals.set: {id: in_climate_selector, value: 'true'}
             - globals.set: {id: in_air, value: 'false'}
             - globals.set: {id: in_menu, value: 'false'}
+            - globals.set: {id: climate_selector_encoder_accum, value: '0'}
             - script.execute: refresh_climate_selector
             - lvgl.page.show:
                 id: page_climate_selector
@@ -54,6 +52,7 @@ script:
       - globals.set: {id: in_climate_selector, value: 'true'}
       - globals.set: {id: in_air, value: 'false'}
       - globals.set: {id: in_menu, value: 'false'}
+      - globals.set: {id: climate_selector_encoder_accum, value: '0'}
       - script.execute: refresh_climate_selector
       - lvgl.page.show:
           id: page_climate_selector
@@ -62,6 +61,7 @@ script:
   - id: close_climate_selector
     then:
       - globals.set: {id: in_climate_selector, value: 'false'}
+      - globals.set: {id: climate_selector_encoder_accum, value: '0'}
       - script.execute: open_menu_back
 
   - id: climate_selector_step
@@ -83,6 +83,7 @@ script:
   - id: climate_selector_confirm
     then:
       - globals.set: {id: in_climate_selector, value: 'false'}
+      - globals.set: {id: climate_selector_encoder_accum, value: '0'}
       - script.execute: open_air
 
   - id: refresh_climate_selector
