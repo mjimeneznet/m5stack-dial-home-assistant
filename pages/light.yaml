@@ -457,7 +457,6 @@ script:
             - globals.set: {id: in_menu, value: 'false'}
             - lvgl.page.show:
                 id: page_light
-                animation: MOVE_LEFT
 
   - id: close_light
     then:
@@ -543,7 +542,6 @@ script:
       - script.execute: refresh_color_preview
       - lvgl.page.show:
           id: page_colorpicker
-          animation: MOVE_LEFT
 
   - id: close_colorpicker
     then:
@@ -554,7 +552,6 @@ script:
       - globals.set: {id: in_light, value: 'true'}
       - lvgl.page.show:
           id: page_light
-          animation: MOVE_RIGHT
 
   - id: toggle_color_picker_mode
     then:
@@ -597,7 +594,6 @@ script:
                   - script.execute: send_light_turn_on
             - lvgl.page.show:
                 id: page_light
-                animation: MOVE_RIGHT
           else:
             - lambda: |-
                 int kelvin = id(light_white_kelvin);
@@ -625,7 +621,6 @@ script:
                   - script.execute: send_light_color_temp
             - lvgl.page.show:
                 id: page_light
-                animation: MOVE_RIGHT
 
   - id: light_hue_up
     then:

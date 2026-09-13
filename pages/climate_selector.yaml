@@ -44,7 +44,6 @@ script:
             - script.execute: refresh_climate_selector
             - lvgl.page.show:
                 id: page_climate_selector
-                animation: MOVE_LEFT
 
   # Same page, coming back from the AC page.
   - id: open_climate_selector_back
@@ -56,7 +55,6 @@ script:
       - script.execute: refresh_climate_selector
       - lvgl.page.show:
           id: page_climate_selector
-          animation: MOVE_RIGHT
 
   - id: close_climate_selector
     then:

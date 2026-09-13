@@ -472,7 +472,6 @@ script:
       - script.execute: refresh_timer
       - lvgl.page.show:
           id: page_timer
-          animation: MOVE_LEFT
 
   - id: close_timer
     then:
