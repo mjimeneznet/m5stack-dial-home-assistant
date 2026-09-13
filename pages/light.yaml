@@ -5,6 +5,13 @@ image:
     type: RGB565
     transparency: alpha_channel
     resize: 22x22
+  - platform: file
+    file: ${asset_base_url}/images/gradient.png
+    id: light_img_gradient
+    type: RGB565
+    transparency: alpha_channel
+    resize: 22x22
+
 
   - platform: file
     file: ${asset_base_url}/images/light.png
@@ -158,6 +165,15 @@ globals:
     restore_value: no
     initial_value: 'false'
 
+  - id: light_ha_effect
+    type: std::string
+    initial_value: '""'
+  - id: light_ha_effect_list
+    type: std::string
+    initial_value: '""'
+  - id: light_effect_next
+    type: std::string
+    initial_value: '""'
 text_sensor:
   - platform: homeassistant
     id: ha_light_state
@@ -241,6 +257,23 @@ text_sensor:
             - lambda: |-
                 id(light_ha_color_mode_is_temp) = x == "color_temp";
             - script.execute: refresh_light_arc
+
+  - platform: homeassistant
+    id: ha_light_effect
+    entity_id: ${light_entity}
+    attribute: effect
+    internal: true
+    on_value:
+      - lambda: 'id(light_ha_effect) = x;'
+      - script.execute: refresh_light_arc
+  - platform: homeassistant
+    id: ha_light_effect_list
+    entity_id: ${light_entity}
+    attribute: effect_list
+    internal: true
+    on_value:
+      - lambda: 'id(light_ha_effect_list) = x;'
+      - script.execute: refresh_light_arc
 
 sensor:
   - platform: homeassistant
@@ -775,6 +808,62 @@ script:
       - script.execute: refresh_light_arc
       - script.execute: queue_light_brightness
 
+  # Efectos: ciclea la lista que anuncia Home Assistant para la luz activa. En el
+  # proyecto original esto estaba fijo a los efectos de una tira LED local.
+  - id: light_cycle_effect
+    then:
+      - lambda: |-
+          std::string raw;
+          std::string current;
+          if (id(light_multilight_active)) {
+            raw = id(dial_lights_id).active_effect_list();
+            current = id(dial_lights_id).active_effect();
+          } else {
+            raw = id(light_ha_effect_list);
+            current = id(light_ha_effect);
+          }
+          std::vector<std::string> effects;
+          size_t pos = 0;
+          while (pos < raw.size()) {
+            const size_t a = raw.find('\'', pos);
+            if (a == std::string::npos) break;
+            const size_t b = raw.find('\'', a + 1);
+            if (b == std::string::npos) break;
+            effects.push_back(raw.substr(a + 1, b - a - 1));
+            pos = b + 1;
+          }
+          if (effects.empty()) {
+            ESP_LOGW("light_fx", "no effects advertised by the active light");
+            return;
+          }
+          size_t next = 0;
+          for (size_t i = 0; i < effects.size(); i++) {
+            if (effects[i] == current) {
+              next = (i + 1) % effects.size();
+              break;
+            }
+          }
+          id(light_effect_next) = effects[next];
+          ESP_LOGI("light_fx", "effect -> %s (%u available)", id(light_effect_next).c_str(),
+                   static_cast<unsigned>(effects.size()));
+      - if:
+          condition:
+            lambda: 'return !id(light_effect_next).empty();'
+          then:
+            - homeassistant.action:
+                action: light.turn_on
+                data_template:
+                  entity_id: "{{ target_entity }}"
+                  effect: "{{ effect_name }}"
+                variables:
+                  target_entity: !lambda |-
+                    if (id(light_multilight_active)) {
+                      return id(dial_lights_id).active_entity_id();
+                    }
+                    return std::string("${light_entity}");
+                  effect_name: !lambda 'return id(light_effect_next);'
+      - script.execute: refresh_light_arc
+
   - id: refresh_light_arc
     then:
       - lambda: |-
@@ -790,6 +879,7 @@ script:
             lv_obj_add_flag(id(lbl_brightness_pct), LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(id(btn_palette), LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(id(btn_dengguang), LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(id(btn_rainbow), LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(id(light_title_pill), LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(id(onoff_main_btn), LV_OBJ_FLAG_HIDDEN);
             lv_obj_set_align(id(light_title_pill), LV_ALIGN_CENTER);
@@ -847,6 +937,25 @@ script:
           lv_obj_set_style_text_color(id(lbl_light_title), tc, LV_STATE_DEFAULT);
           if (id(light_supports_rgb) || id(light_supports_color_temp)) lv_obj_clear_flag(id(btn_palette), LV_OBJ_FLAG_HIDDEN);
           else lv_obj_add_flag(id(btn_palette), LV_OBJ_FLAG_HIDDEN);
+          // Efectos: el botón solo aparece si la luz anuncia efectos.
+          std::string effect_list_raw;
+          std::string effect_name;
+          if (id(light_multilight_active)) {
+            effect_list_raw = id(dial_lights_id).active_effect_list();
+            effect_name = id(dial_lights_id).active_effect();
+          } else {
+            effect_list_raw = id(light_ha_effect_list);
+            effect_name = id(light_ha_effect);
+          }
+          const bool has_effects = effect_list_raw.size() > 2 && effect_list_raw[0] == '[';
+          if (has_effects) {
+            lv_obj_clear_flag(id(btn_rainbow), LV_OBJ_FLAG_HIDDEN);
+            lv_color_t fx_col = effect_name.empty() ? lv_color_hex(0x262626) : tc;
+            lv_obj_set_style_border_color(id(btn_rainbow), fx_col, LV_STATE_DEFAULT);
+            lv_obj_set_style_shadow_color(id(btn_rainbow), fx_col, LV_STATE_DEFAULT);
+          } else {
+            lv_obj_add_flag(id(btn_rainbow), LV_OBJ_FLAG_HIDDEN);
+          }
           if (id(light_supports_brightness)) {
             lv_obj_clear_flag(id(light_arc), LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(id(light_knob_dot), LV_OBJ_FLAG_HIDDEN);
@@ -1005,8 +1114,35 @@ lvgl:
                         clickable: false
 
               - obj:
+                  id: btn_rainbow
+                  x: 102
+                  y: 177
+                  width: 36
+                  height: 36
+                  radius: 18
+                  bg_color: col_light_bg
+                  bg_opa: COVER
+                  border_width: 2
+                  border_color: col_light_icon_bg
+                  border_opa: COVER
+                  shadow_width: 8
+                  shadow_color: col_light_icon_bg
+                  shadow_opa: 25%
+                  shadow_spread: 0
+                  clickable: true
+                  scrollbar_mode: "OFF"
+                  scroll_dir: NONE
+                  on_click:
+                    - script.execute: light_cycle_effect
+                  widgets:
+                    - image:
+                        src: light_img_gradient
+                        align: CENTER
+                        clickable: false
+
+              - obj:
                   id: btn_dengguang
-                  x: 123
+                  x: 143
                   y: 177
                   width: 36
                   height: 36

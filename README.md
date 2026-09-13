@@ -146,7 +146,7 @@ The Dial supports the rotary encoder, the front button, horizontal touch gesture
 | --- | --- | --- | --- |
 | Clock (Home) | No action | Opens Menu | Swipe right opens Menu too. A long press has no action. |
 | Menu | Moves the circular selection | Opens the selected page; Home returns to Clock | Tap a visible menu item to open it. Swipe right returns to Clock. |
-| Lights | Changes brightness or the active selector value | Opens/accepts the selected light, according to context | Touch controls power, colour picker and colour confirmation. |
+| Lights | Changes brightness or the active selector value | Opens/accepts the selected light, according to context | Touch controls power, colour picker, colour confirmation and the effects button (shown only when the light advertises effects). |
 | AC | Changes the selected value | Accepts or confirms the current edit | Touch selects controls and toggles power, fan mode or HVAC mode. With several climates configured, this page opens a selector first. |
 | Music | Changes volume | Accepts the current action where applicable | Touch controls playback and transport. |
 | Timer | Adjusts the selected duration unit while the timer is idle | Starts, pauses, resumes or clears the finished state | Touch selects hours/minutes/seconds and accesses reset/cancel. |

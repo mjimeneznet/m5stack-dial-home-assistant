@@ -61,7 +61,7 @@ packages:
 | `light` | The Home Assistant light `entity_id`. |
 | `name` | The label shown on the Dial. |
 
-The template declares the Home Assistant sensors the page reads for live state — state, supported colour modes, colour, colour mode, brightness and the colour-temperature range — and hooks state and brightness into the menu subtitle. An attribute the light does not expose simply stays empty, and an unavailable entity does not synchronise. Add an entry to add a light; remove it to drop one; with none left, Lights disappears from the menu.
+The template declares the Home Assistant sensors the page reads for live state — state, supported colour modes, colour, colour mode, brightness and the colour-temperature range — and hooks state and brightness into the menu subtitle. It also reads the light's `effect` and `effect_list`, which gives the page the **effects button** — the rainbow icon between the palette and the power button: each tap sends `light.turn_on` with the next effect that light advertises, so the same button works for a WLED strip with ~180 effects and for a Hue bulb with a dozen. The button is hidden when a light reports no effects, and its ring lights up in the current colour while an effect is running. An attribute the light does not expose simply stays empty, and an unavailable entity does not synchronise. Add an entry to add a light; remove it to drop one; with none left, Lights disappears from the menu.
 
 #### Manual light entries
 
