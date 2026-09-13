@@ -34,6 +34,8 @@ dial_lights:
     color_temp_kelvin_sensor: dial_light_${prefix}_color_temp_kelvin
     min_color_temp_kelvin_sensor: dial_light_${prefix}_min_color_temp_kelvin
     max_color_temp_kelvin_sensor: dial_light_${prefix}_max_color_temp_kelvin
+    effect_sensor: dial_light_${prefix}_effect
+    effect_list_sensor: dial_light_${prefix}_effect_list
 
 text_sensor:
   - platform: homeassistant
@@ -61,6 +63,17 @@ text_sensor:
     attribute: color_mode
     internal: true
 
+  - platform: homeassistant
+    id: dial_light_${prefix}_effect
+    entity_id: ${light}
+    attribute: effect
+    internal: true
+
+  - platform: homeassistant
+    id: dial_light_${prefix}_effect_list
+    entity_id: ${light}
+    attribute: effect_list
+    internal: true
 sensor:
   - platform: homeassistant
     id: dial_light_${prefix}_brightness

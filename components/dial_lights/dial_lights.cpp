@@ -189,47 +189,47 @@ int clamp_kelvin(int kelvin, int min_k, int max_k) {
 void DialLights::add_light(const std::string &entity_id, const std::string &name, text_sensor::TextSensor *state,
                            text_sensor::TextSensor *modes, sensor::Sensor *brightness, text_sensor::TextSensor *color,
                            text_sensor::TextSensor *color_mode, sensor::Sensor *color_temp_kelvin,
-                           sensor::Sensor *min_color_temp_kelvin, sensor::Sensor *max_color_temp_kelvin) {
+                           sensor::Sensor *min_color_temp_kelvin, sensor::Sensor *max_color_temp_kelvin,
+                           text_sensor::TextSensor *effect, text_sensor::TextSensor *effect_list) {
   for (const auto &existing : this->lights_) {
     if (existing.entity_id == entity_id) {
       ESP_LOGW(TAG, "Duplicate light entity_id ignored: %s", entity_id.c_str());
       return;
     }
   }
-  this->lights_.push_back({entity_id,
-                           name,
-                           state,
-                           false,
-                           false,
-                           modes,
-                           false,
-                           false,
-                           false,
-                           brightness,
-                           false,
-                           75,
-                           color,
-                           false,
-                           169,
-                           143,
-                           255,
-                           color_mode,
-                           false,
-                           false,
-                           color_temp_kelvin,
-                           false,
-                           4000,
-                           min_color_temp_kelvin,
-                           false,
-                           DEFAULT_MIN_KELVIN,
-                           max_color_temp_kelvin,
-                           false,
-                           DEFAULT_MAX_KELVIN});
+  LightEntry entry;
+  entry.entity_id = entity_id;
+  entry.name = name;
+  entry.state = state;
+  entry.modes = modes;
+  entry.brightness = brightness;
+  entry.color = color;
+  entry.color_mode = color_mode;
+  entry.color_temp_kelvin = color_temp_kelvin;
+  entry.min_color_temp_kelvin = min_color_temp_kelvin;
+  entry.max_color_temp_kelvin = max_color_temp_kelvin;
+  entry.effect = effect;
+  entry.effect_list = effect_list;
+  this->lights_.push_back(entry);
 }
 
 void DialLights::setup() {
   for (size_t i = 0; i < this->lights_.size(); i++) {
     auto &light = this->lights_[i];
+    if (light.effect != nullptr) {
+      light.effect->add_on_state_callback(
+          [this, i](const std::string &value) { this->on_effect_(i, value); });
+      if (light.effect->has_state()) {
+        this->on_effect_(i, light.effect->state);
+      }
+    }
+    if (light.effect_list != nullptr) {
+      light.effect_list->add_on_state_callback(
+          [this, i](const std::string &value) { this->on_effect_list_(i, value); });
+      if (light.effect_list->has_state()) {
+        this->on_effect_list_(i, light.effect_list->state);
+      }
+    }
     if (light.state != nullptr) {
       light.state->add_on_state_callback([this, i](const std::string &value) { this->on_state_(i, value); });
       if (light.state->has_state()) {
@@ -435,6 +435,18 @@ void DialLights::on_max_color_temp_kelvin_(size_t index, float value) {
   }
 }
 
+void DialLights::on_effect_(size_t index, const std::string &value) {
+  auto &light = this->lights_[index];
+  light.effect_valid = !value.empty() && value != "unknown" && value != "unavailable" && value != "None";
+  light.effect_value = light.effect_valid ? value : std::string();
+}
+
+void DialLights::on_effect_list_(size_t index, const std::string &value) {
+  auto &light = this->lights_[index];
+  light.effect_list_valid = !value.empty() && value != "unknown" && value != "unavailable" && value != "None";
+  light.effect_list_value = light.effect_list_valid ? value : std::string();
+}
+
 bool DialLights::active_has_valid_state() const {
   if (this->lights_.empty() || this->active_index_ >= this->lights_.size())
     return false;
@@ -552,6 +564,19 @@ int DialLights::active_max_color_temp_kelvin() const {
   int max_k = light.max_color_temp_kelvin_valid ? light.max_color_temp_kelvin_value : DEFAULT_MAX_KELVIN;
   sanitize_kelvin_range(min_k, max_k);
   return max_k;
+}
+
+const std::string &DialLights::active_effect() const { return this->active_entry_().effect_value; }
+
+bool DialLights::active_effect_valid() const { return this->active_entry_().effect_valid; }
+
+const std::string &DialLights::active_effect_list() const { return this->active_entry_().effect_list_value; }
+
+bool DialLights::active_effect_list_valid() const { return this->active_entry_().effect_list_valid; }
+
+bool DialLights::active_supports_effects() const {
+  const auto &entry = this->active_entry_();
+  return entry.effect_list_valid && entry.effect_list_value.size() > 2 && entry.effect_list_value[0] == '[';
 }
 
 void DialLights::select_light(size_t index) {

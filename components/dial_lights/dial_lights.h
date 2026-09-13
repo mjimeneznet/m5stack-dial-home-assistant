@@ -36,7 +36,8 @@ class DialLights : public Component {
                  text_sensor::TextSensor *modes = nullptr, sensor::Sensor *brightness = nullptr,
                  text_sensor::TextSensor *color = nullptr, text_sensor::TextSensor *color_mode = nullptr,
                  sensor::Sensor *color_temp_kelvin = nullptr, sensor::Sensor *min_color_temp_kelvin = nullptr,
-                 sensor::Sensor *max_color_temp_kelvin = nullptr);
+                 sensor::Sensor *max_color_temp_kelvin = nullptr, text_sensor::TextSensor *effect = nullptr,
+                 text_sensor::TextSensor *effect_list = nullptr);
   void setup() override;
   void load_active_snapshot();
 
@@ -68,6 +69,11 @@ class DialLights : public Component {
   int active_color_temp_kelvin() const;
   int active_min_color_temp_kelvin() const;
   int active_max_color_temp_kelvin() const;
+  const std::string &active_effect() const;
+  bool active_effect_valid() const;
+  const std::string &active_effect_list() const;
+  bool active_effect_list_valid() const;
+  bool active_supports_effects() const;
 
  protected:
   struct LightEntry {
@@ -100,6 +106,12 @@ class DialLights : public Component {
     sensor::Sensor *max_color_temp_kelvin{nullptr};
     bool max_color_temp_kelvin_valid{false};
     int max_color_temp_kelvin_value{6500};
+    text_sensor::TextSensor *effect{nullptr};
+    bool effect_valid{false};
+    std::string effect_value;
+    text_sensor::TextSensor *effect_list{nullptr};
+    bool effect_list_valid{false};
+    std::string effect_list_value;
   };
 
   const LightEntry &active_entry_() const;
@@ -111,6 +123,8 @@ class DialLights : public Component {
   void on_color_temp_kelvin_(size_t index, float value);
   void on_min_color_temp_kelvin_(size_t index, float value);
   void on_max_color_temp_kelvin_(size_t index, float value);
+  void on_effect_(size_t index, const std::string &value);
+  void on_effect_list_(size_t index, const std::string &value);
 
   std::vector<LightEntry> lights_;
   size_t active_index_{0};

@@ -15,6 +15,8 @@ CONF_COLOR_MODE_SENSOR = "color_mode_sensor"
 CONF_COLOR_TEMP_KELVIN_SENSOR = "color_temp_kelvin_sensor"
 CONF_MIN_COLOR_TEMP_KELVIN_SENSOR = "min_color_temp_kelvin_sensor"
 CONF_MAX_COLOR_TEMP_KELVIN_SENSOR = "max_color_temp_kelvin_sensor"
+CONF_EFFECT_SENSOR = "effect_sensor"
+CONF_EFFECT_LIST_SENSOR = "effect_list_sensor"
 
 dial_lights_ns = cg.esphome_ns.namespace("dial_lights")
 DialLights = dial_lights_ns.class_("DialLights", cg.Component)
@@ -31,6 +33,8 @@ LIGHT_SCHEMA = cv.Schema(
         cv.Optional(CONF_COLOR_TEMP_KELVIN_SENSOR): cv.use_id(sensor.Sensor),
         cv.Optional(CONF_MIN_COLOR_TEMP_KELVIN_SENSOR): cv.use_id(sensor.Sensor),
         cv.Optional(CONF_MAX_COLOR_TEMP_KELVIN_SENSOR): cv.use_id(sensor.Sensor),
+        cv.Optional(CONF_EFFECT_SENSOR): cv.use_id(text_sensor.TextSensor),
+        cv.Optional(CONF_EFFECT_LIST_SENSOR): cv.use_id(text_sensor.TextSensor),
     }
 )
 
@@ -60,6 +64,8 @@ async def to_code(config):
         color_temp_kelvin = None
         min_color_temp_kelvin = None
         max_color_temp_kelvin = None
+        effect = None
+        effect_list = None
         if CONF_STATE_SENSOR in light:
             state = await cg.get_variable(light[CONF_STATE_SENSOR])
         if CONF_MODES_SENSOR in light:
@@ -76,6 +82,10 @@ async def to_code(config):
             min_color_temp_kelvin = await cg.get_variable(light[CONF_MIN_COLOR_TEMP_KELVIN_SENSOR])
         if CONF_MAX_COLOR_TEMP_KELVIN_SENSOR in light:
             max_color_temp_kelvin = await cg.get_variable(light[CONF_MAX_COLOR_TEMP_KELVIN_SENSOR])
+            if CONF_EFFECT_SENSOR in light:
+                effect = await cg.get_variable(light[CONF_EFFECT_SENSOR])
+            if CONF_EFFECT_LIST_SENSOR in light:
+                effect_list = await cg.get_variable(light[CONF_EFFECT_LIST_SENSOR])
         cg.add(
             var.add_light(
                 entity,
@@ -88,5 +98,7 @@ async def to_code(config):
                 color_temp_kelvin,
                 min_color_temp_kelvin,
                 max_color_temp_kelvin,
+                effect,
+                effect_list,
             )
         )
