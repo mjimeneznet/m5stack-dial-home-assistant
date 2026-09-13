@@ -63,7 +63,9 @@ display:
     reset_pin: GPIO8
     dc_pin: GPIO4
     invert_colors: true
-    data_rate: 40MHz
+    # 40 MHz meant ~23 ms of pure SPI transfer per full frame; the GC9A01A takes
+    # 80 MHz fine. If artefacts appear on screen, drop to 60MHz or back to 40MHz.
+    data_rate: 80MHz
     update_interval: never
     auto_clear_enabled: false
 
