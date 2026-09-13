@@ -288,12 +288,14 @@ script:
       - script.execute: refresh_music_metadata
       - lvgl.page.show:
           id: page_music
+          animation: MOVE_LEFT
 
   - id: close_music
     then:
       - globals.set: {id: in_music, value: 'false'}
       - lvgl.page.show:
           id: page_clock
+          animation: MOVE_RIGHT
 
   - id: refresh_music_metadata
     then:

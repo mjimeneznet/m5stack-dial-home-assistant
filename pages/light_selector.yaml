@@ -389,6 +389,7 @@ script:
             - script.execute: refresh_light_selector
             - lvgl.page.show:
                 id: page_light_selector
+                animation: MOVE_LEFT
 
   - id: open_light_selector_back
     then:
@@ -400,6 +401,7 @@ script:
       - script.execute: refresh_light_selector
       - lvgl.page.show:
           id: page_light_selector
+          animation: MOVE_RIGHT
 
   - id: close_light_selector
     then:

@@ -144,6 +144,7 @@ script:
       - script.execute: refresh_menu
       - lvgl.page.show:
           id: page_menu
+          animation: MOVE_RIGHT
 
   - id: open_menu_back
     then:
@@ -152,12 +153,14 @@ script:
       - script.execute: refresh_menu
       - lvgl.page.show:
           id: page_menu
+          animation: MOVE_RIGHT
 
   - id: close_menu
     then:
       - globals.set: {id: in_menu, value: 'false'}
       - lvgl.page.show:
           id: page_clock
+          animation: MOVE_LEFT
 
   - id: menu_scroll_up
     then:

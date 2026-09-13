@@ -257,6 +257,7 @@ script:
       - script.execute: refresh_air
       - lvgl.page.show:
           id: page_air
+          animation: MOVE_LEFT
 
   - id: close_air
     then:
